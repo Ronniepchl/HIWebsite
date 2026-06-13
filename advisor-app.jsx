@@ -196,7 +196,7 @@ function AFTalk({ open, onClose }) {
   React.useEffect(()=>{ document.body.style.overflow = open?"hidden":""; if(!open) setTimeout(()=>{setDone(false);setForm({name:"",contact:""});setErr({});},300); },[open]);
   React.useEffect(()=>{ const k=(e)=>{ if(e.key==="Escape"&&open) onClose(); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[open,onClose]);
   if(!open) return null;
-  const submit=(e)=>{ e.preventDefault(); const er={}; if(!form.name.trim())er.name=1; if(!form.contact.trim())er.contact=1; setErr(er); if(!Object.keys(er).length) setDone(true); };
+  const submit=(e)=>{ e.preventDefault(); const er={}; if(!form.name.trim())er.name=1; if(!form.contact.trim())er.contact=1; setErr(er); if(!Object.keys(er).length){ setDone(true); const r=window.__afLastResult||null; window.submitToSheet && window.submitToSheet({ source:"advisor-fit", event:"lead", name:form.name.trim(), contact:form.contact.trim(), score:r?r.score:null, answers:r?r.answers:null, summary:"Advisor Fit — let's talk"+(r?(" (score "+r.score+")"):"") }); } };
   return (
     <div className="lps-overlay on" onClick={onClose}>
       <div className="te-book card" onClick={e=>e.stopPropagation()}>
@@ -231,12 +231,19 @@ function AFApp() {
   const [view, setView] = React.useState(startInAssess ? "assess" : "intro");
   const [result, setResult] = React.useState(null);
   const [talk, setTalk] = React.useState(false);
+  const submittedRef = React.useRef(false); // one-shot guard against double completion
   React.useEffect(()=>{ window.scrollTo(0,0); }, [view]);
+  const complete = (r) => {
+    setResult(r); setView("result"); window.__afLastResult = r;
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    window.submitToSheet && window.submitToSheet({ source:"advisor-fit", event:"completion", score:r.score, answers:r.answers, summary:"Advisor Fit — score "+r.score+"/100" });
+  };
   return (
     <div className="te-root" data-motion="on">
       {view==="intro" && <AFIntro onStart={()=>setView("assess")} />}
-      {view==="assess" && <AFAssessment motion={true} onComplete={(r)=>{ setResult(r); setView("result"); }} />}
-      {view==="result" && result && <AFResult result={result} motion={true} onTalk={()=>setTalk(true)} onRestart={()=>{ setResult(null); setView("intro"); }} />}
+      {view==="assess" && <AFAssessment motion={true} onComplete={complete} />}
+      {view==="result" && result && <AFResult result={result} motion={true} onTalk={()=>setTalk(true)} onRestart={()=>{ submittedRef.current=false; setResult(null); setView("intro"); }} />}
       <AFTalk open={talk} onClose={()=>setTalk(false)} />
     </div>
   );

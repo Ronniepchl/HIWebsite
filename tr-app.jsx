@@ -19,7 +19,23 @@ function TrConsultModal({ open, onClose }) {
     if (!form.name.trim()) er.name = true;
     if (!form.contact.trim()) er.contact = true;
     setErr(er);
-    if (!Object.keys(er).length) setDone(true);
+    if (!Object.keys(er).length) {
+      setDone(true);
+      const ans = window.__trLastAnswers || null;
+      const score = ans ? window.trComputeScore(ans) : null;
+      const seg = score != null ? window.trSegmentFor(score) : null;
+      window.submitToSheet && window.submitToSheet({
+        source: "truth-report",
+        event: "lead",
+        name: form.name.trim(),
+        contact: form.contact.trim(),
+        score,
+        segment: seg ? seg.en : "",
+        answers: ans,
+        fields: window.trFields(ans),
+        summary: seg ? ("Truth Report — " + seg.en + " (" + score + "/100)") : "Truth Report consult request",
+      });
+    }
   };
   return (
     <div className="tr-modal-ov" onClick={onClose}>
@@ -60,6 +76,7 @@ function TrApp() {
   const [phase, setPhase] = React.useState("intro"); // intro | quiz | report
   const [ans, setAns] = React.useState(null);
   const [consult, setConsult] = React.useState(false);
+  const submittedRef = React.useRef(false); // one-shot guard against double completion
 
   React.useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -67,8 +84,26 @@ function TrApp() {
   }, []);
 
   const start = () => { setPhase("quiz"); window.scrollTo(0, 0); };
-  const complete = (a) => { setAns(a); setPhase("report"); window.scrollTo(0, 0); };
-  const restart = () => { setAns(null); setPhase("intro"); window.scrollTo(0, 0); };
+  const complete = (a) => {
+    setAns(a);
+    setPhase("report");
+    window.scrollTo(0, 0);
+    window.__trLastAnswers = a; // shared with the consult modal
+    if (submittedRef.current) return; // already logged this completion
+    submittedRef.current = true;
+    const score = window.trComputeScore(a);
+    const seg = window.trSegmentFor(score);
+    window.submitToSheet && window.submitToSheet({
+      source: "truth-report",
+      event: "completion",
+      score,
+      segment: seg ? seg.en : "",
+      answers: a,
+      fields: window.trFields(a),
+      summary: "Truth Report — " + (seg ? seg.en : "") + " (" + score + "/100)",
+    });
+  };
+  const restart = () => { submittedRef.current = false; setAns(null); setPhase("intro"); window.scrollTo(0, 0); };
 
   return (
     <>

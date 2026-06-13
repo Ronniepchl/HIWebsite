@@ -100,6 +100,25 @@ function ScoreWizard({ open, onClose, onReport, tweaks }) {
 
   const pct = isResult ? 100 : Math.round((step / Q.length) * 100);
 
+  // Log every completed protection score to the Sheet (once, when the result appears).
+  const sentRef = React.useRef(false);
+  React.useEffect(() => {
+    if (!isResult) { sentRef.current = false; return; }
+    if (sentRef.current) return;
+    sentRef.current = true;
+    const sg = segmentFor(score);
+    window.__lpsLast = { score, answers: ans, segment: sg ? sg.en : "" };
+    window.submitToSheet && window.submitToSheet({
+      source: "life-protection-score",
+      event: "completion",
+      score,
+      segment: sg ? sg.en : "",
+      answers: ans,
+      fields: window.lpsFields(ans),
+      summary: "Life Protection Score — " + (sg ? sg.en : "") + " (" + score + "/100)",
+    });
+  }, [isResult, score, ans]);
+
   if (!open) return null;
   const seg = segmentFor(score);
 

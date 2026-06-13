@@ -277,7 +277,22 @@ function ReportModal({ open, onClose }) {
     if (!form.name.trim()) er.name = true;
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) er.email = true;
     setErr(er);
-    if (Object.keys(er).length === 0) setDone(true);
+    if (Object.keys(er).length === 0) {
+      setDone(true);
+      const lps = window.__lpsLast || null;
+      window.submitToSheet && window.submitToSheet({
+        source: "life-protection-score",
+        event: "lead",
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        score: lps ? lps.score : null,
+        segment: lps ? lps.segment : "",
+        answers: lps ? lps.answers : null,
+        fields: lps ? window.lpsFields(lps.answers) : {},
+        summary: "Truth Report request" + (lps ? (" — Life Protection Score " + lps.score + "/100") : ""),
+      });
+    }
   };
 
   return (
