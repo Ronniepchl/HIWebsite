@@ -1,38 +1,71 @@
-// sheet-sync.jsx — sends questionnaire results to the InsureFlow Google Sheet.
+// sheet-sync.jsx — sends questionnaire results to the InsureFlow / HIWebapp
+// Google Sheet via its Apps Script Web App.
 //
 // HOW IT WORKS
-//   The site is fully static (no backend), so we POST to a Google Apps Script
-//   Web App that appends a row to the Sheet. Deploy the script in
-//   apps-script/Code.gs, then paste the resulting /exec URL below.
+//   The site is fully static (no backend), so we POST to the Apps Script Web
+//   App. The HIWebapp script is an action-based API:
+//     - action=logQuestionnaire  -> analytics row in the questionnaire's own
+//       tab, one column per question (added by apps-script/logQuestionnaire.gs)
+//     - action=addLead           -> a CRM Lead (the script's built-in action)
+//   Contact-form submits fire BOTH; anonymous completions fire only the first.
 //
-// Until SHEET_ENDPOINT is filled in, submitToSheet() is a silent no-op so the
-// site keeps working normally.
+// All requests are fire-and-forget no-cors POSTs (the script sends no CORS
+// headers). We can't read the response, but the rows are written. Never throws.
 
-const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycby9UQxfFVeJGAIUDnd3A6ARzayrRlWovx1IorHmJKiwX0ggR6ozveIj52pUlnFpuFSh/exec";
+const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzn4ajLjkHPWiRLWj__vAIqzMvNBW4MvIPg-im62AXIGoA1qr8_6CrqIMBBm16whZ9slA/exec";
 
-// Fire-and-forget POST. Apps Script Web Apps don't send CORS headers, so we use
-// mode:"no-cors" with a text/plain body (avoids a CORS preflight). We can't read
-// the response, but the row is written. Never throws — a logging failure must
-// never break the questionnaire UX.
+function sheetPost(url, contentType, body) {
+  // no-cors avoids a CORS preflight; the action's response is opaque to us.
+  return fetch(url, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": contentType },
+    body,
+    keepalive: true, // let it complete even if the page unloads
+  }).catch((err) => console.warn("[sheet-sync] post failed (ignored):", err));
+}
+
+// Split a single "contact" string (email or phone) into structured parts.
+function splitContact(payload) {
+  const contact = String(payload.contact || "");
+  const isEmail = contact.indexOf("@") > -1;
+  return {
+    email: payload.email || (isEmail ? contact : ""),
+    phone: payload.phone || (isEmail ? "" : contact),
+  };
+}
+
 async function submitToSheet(payload) {
   try {
     if (!SHEET_ENDPOINT || SHEET_ENDPOINT.indexOf("PASTE_YOUR") === 0) {
       console.info("[sheet-sync] endpoint not configured — skipping", payload);
       return;
     }
+
+    // 1) Full analytics row (per-source tab, one column per question).
+    //    action goes in the query string (not sensitive); data in the JSON body.
     const body = JSON.stringify({
       ...payload,
       pageUrl: window.location.href,
       userAgent: navigator.userAgent,
       submittedAt: new Date().toISOString(),
     });
-    await fetch(SHEET_ENDPOINT, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body,
-      keepalive: true, // let it complete even if the page unloads
-    });
+    sheetPost(SHEET_ENDPOINT + "?action=logQuestionnaire", "text/plain;charset=utf-8", body);
+
+    // 2) Contact-form submits also create a CRM lead via the built-in action.
+    //    Sent form-encoded in the BODY so no personal data lands in the URL.
+    if (payload.event === "lead") {
+      const c = splitContact(payload);
+      const form = new URLSearchParams({
+        action: "addLead",
+        name: payload.name || "",
+        src: "Website",
+        note: payload.summary || "",
+        email: c.email,
+        phone: c.phone,
+      }).toString();
+      sheetPost(SHEET_ENDPOINT, "application/x-www-form-urlencoded;charset=UTF-8", form);
+    }
   } catch (err) {
     console.warn("[sheet-sync] submit failed (ignored):", err);
   }
