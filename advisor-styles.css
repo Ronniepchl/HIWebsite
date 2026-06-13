@@ -1,0 +1,18 @@
+/* advisor-styles.css — Advisor Fit Score™ specifics (rides on te-styles.css) */
+
+.af-signals { max-width: 460px; }
+.af-progressbar { height: 4px; background: var(--surface-3); border-radius: 4px; overflow: hidden; margin-bottom: 34px; }
+.af-progressbar-fill { height: 100%; background: linear-gradient(90deg, var(--navy), var(--green)); border-radius: 4px; transition: width .5s cubic-bezier(.2,.8,.25,1); }
+
+/* advisor outlook bar */
+.af-outlook-sec { text-align: center; }
+.af-outlook { max-width: 560px; margin: 0 auto; }
+.af-outlook-bar { position: relative; height: 12px; border-radius: 999px; background: linear-gradient(90deg, rgba(192,85,47,.25), rgba(31,122,82,.25)); overflow: visible; }
+.af-outlook-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--green)); }
+.af-outlook-marker { position: absolute; top: 50%; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid var(--green); transform: translate(-50%,-50%); box-shadow: 0 6px 16px -4px rgba(19,41,75,.4); transition: left .9s cubic-bezier(.2,.8,.25,1); }
+.af-outlook-labels { display: flex; justify-content: space-between; margin-top: 16px; }
+.af-outlook-l { font-family: var(--font-mono); font-size: 12px; line-height: 1.4; }
+.af-weak { color: var(--text-faint); text-align: left; }
+.af-strong { color: var(--green); text-align: right; font-weight: 500; }
+.af-brandmsg { margin-top: 40px; font-family: var(--font-display); font-weight: 400; font-size: clamp(18px, 2.2vw, 24px); line-height: 1.5; color: var(--text-dim); text-wrap: balance; }
+.af-brandmsg strong { color: var(--navy); font-weight: 600; }

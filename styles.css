@@ -1,0 +1,229 @@
+/* ============================================================
+   HUMAN INSURANCE — Protection Advisory Platform
+   Clean corporate. White canvas · navy · gold · green.
+   ============================================================ */
+
+:root {
+  /* Surfaces — white, layered cool */
+  --bg:         #ffffff;
+  --bg-soft:    #f6f8fb;
+  --surface-1:  #ffffff;
+  --surface-2:  #f4f7fa;
+  --surface-3:  #eaeff5;
+  --border:     rgba(19, 41, 75, 0.12);
+  --border-strong: rgba(19, 41, 75, 0.22);
+
+  /* Brand — navy primary, gold accent, green positive */
+  --navy:        #13294b;
+  --navy-soft:   #1d3a63;
+  --gold:        #a07d1f;
+  --gold-bright: #c2a14a;
+  --green:       #1f7a52;
+  --green-bright:#2c9268;
+
+  /* Accent (primary interactive) defaults to navy */
+  --accent:      #1d3a63;
+  --accent-bright: #2a4f86;
+  --accent-deep: #13294b;
+  --accent-glow: rgba(19, 41, 75, 0.18);
+
+  /* Score palette — corporate, calm */
+  --c-under:   #c0552f;  /* terracotta */
+  --c-partial: #b8902e;  /* gold */
+  --c-well:    #2f5d9e;  /* blue */
+  --c-optimal: #1f7a52;  /* green */
+
+  /* Text — navy ink on white */
+  --text:       #13294b;
+  --text-soft:  #41526b;
+  --text-dim:   #6b7a8f;
+  --text-faint: #99a4b3;
+
+  /* Type */
+  --font-display: "Anuphan", "IBM Plex Sans", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Geometry */
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --maxw: 1200px;
+
+  --shadow-card: 0 1px 2px rgba(19,41,75,0.04), 0 12px 32px -20px rgba(19,41,75,0.22);
+  --shadow-pop: 0 30px 80px -36px rgba(19,41,75,0.40);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection { background: rgba(19,41,75,0.14); color: var(--navy); }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p { margin: 0; text-wrap: pretty; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ---- Layout helpers ---- */
+.section { position: relative; padding: clamp(72px, 9vw, 140px) 0; }
+.wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+.wrap-narrow { max-width: 880px; }
+
+/* ---- Eyebrow / kicker (mono, gold accent) ---- */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.kicker::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.section-title {
+  font-size: clamp(30px, 4.4vw, 52px);
+  letter-spacing: -0.02em;
+  margin-top: 18px;
+}
+.section-lede {
+  color: var(--text-soft);
+  font-size: clamp(16px, 1.5vw, 19px);
+  max-width: 620px;
+  margin-top: 18px;
+  line-height: 1.65;
+}
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 500;
+  padding: 14px 24px;
+  transition: transform .25s cubic-bezier(.2,.7,.3,1), box-shadow .25s, background .25s, border-color .25s, color .2s;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 1px 1px rgba(255,255,255,.18) inset, 0 10px 26px -14px rgba(19,41,75,.55);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  background: var(--accent-deep);
+  box-shadow: 0 1px 1px rgba(255,255,255,.22) inset, 0 18px 38px -16px rgba(19,41,75,.55);
+}
+.btn-ghost {
+  background: #fff;
+  border-color: var(--border-strong);
+  color: var(--navy);
+}
+.btn-ghost:hover { background: var(--surface-2); border-color: var(--navy); transform: translateY(-2px); }
+.btn-lg { padding: 17px 30px; font-size: 16.5px; }
+.btn .arrow { transition: transform .25s; }
+.btn:hover .arrow { transform: translateX(3px); }
+
+/* ---- Card ---- */
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* ---- Mono tag chip ---- */
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 11px;
+  background: var(--surface-2);
+}
+
+/* ---- Image placeholder (striped) ---- */
+.ph {
+  position: relative;
+  border-radius: var(--r-md);
+  background-color: var(--surface-2);
+  background-image: repeating-linear-gradient(135deg,
+    rgba(19,41,75,0.06) 0, rgba(19,41,75,0.06) 1px,
+    transparent 1px, transparent 11px);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.ph-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+}
+
+/* ---- Reveal-on-scroll ---- */
+.reveal {
+  transform: translateY(24px);
+  transition: transform .8s cubic-bezier(.2,.7,.3,1);
+  will-change: transform;
+}
+.reveal.in { transform: none; }
+[data-motion="off"] .reveal { transform: none; transition: none; }
+
+/* dim background grid for ambiance */
+.grid-bg::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 25%, transparent 70%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 25%, transparent 70%);
+  opacity: .6;
+  pointer-events: none;
+}
+
+#root { position: relative; z-index: 1; }
+
+@media (max-width: 720px) {
+  body { font-size: 16px; }
+  .section { padding: 64px 0; }
+  .wrap { padding: 0 20px; }
+}
