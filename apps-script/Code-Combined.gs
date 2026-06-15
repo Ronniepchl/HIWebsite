@@ -410,6 +410,7 @@ function buildLeads(rows) {
       name: String(l.FullName || l.LeadID || ''),
       en: '',
       src: String(l.Source || '—'),
+      phone: String(l.Phone || '—'),
       date: relativeFrom(l.LastContactDate || l.FirstContactDate || l.CreatedAt) || '—',
       stage: mapLeadStage(l.Stage),
       note: String(l.Interest || l.Notes || l.LostReason || ''),
