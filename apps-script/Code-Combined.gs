@@ -194,6 +194,8 @@ function addAgentRow(p) {
   const obj = {
     AgentLeadID: id,
     FullName: p.name || '',
+    Phone: p.phone || '',
+    PhoneSearch: digitsOnly(p.phone),
     CurrentOccupation: p.job || p.src || '',
     Source: p.source || p.src || 'Manual',
     Stage: 'Interested',
