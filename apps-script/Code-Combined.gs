@@ -441,6 +441,7 @@ function buildAgents(rows) {
       id: String(a.AgentLeadID || ''),
       name: String(a.FullName || a.AgentLeadID || ''),
       job: String(a.CurrentOccupation || '—'),
+      phone: String(a.Phone || '—'),
       date: date,
       nextAction: date,
       stage: stage,
