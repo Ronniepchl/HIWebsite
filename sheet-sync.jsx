@@ -12,7 +12,7 @@
 // All requests are fire-and-forget no-cors POSTs (the script sends no CORS
 // headers). We can't read the response, but the rows are written. Never throws.
 
-const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbzn4ajLjkHPWiRLWj__vAIqzMvNBW4MvIPg-im62AXIGoA1qr8_6CrqIMBBm16whZ9slA/exec";
+const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbw9aRQ-0t89Xk6r1xITS-t0g_ZhBiLtx6ww_RKszN2BNf8xMPbD6qiFKR_B5Y4XYPpBew/exec";
 
 function sheetPost(url, contentType, body) {
   // no-cors avoids a CORS preflight; the action's response is opaque to us.
