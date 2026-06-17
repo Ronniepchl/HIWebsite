@@ -318,6 +318,17 @@ function setCellIfCol_(sh, headers, row, colName, val) {
   if (c >= 0) sh.getRange(row, c + 1).setValue(val);
 }
 
+/* Run this ONCE from the editor to grant the Calendar permission. It touches
+   CalendarApp directly, which makes Apps Script show the consent dialog —
+   click "Review permissions" → your account → Allow. After that, the web
+   app's "Schedule" action can create events. (testBuild won't trigger this
+   because it never calls CalendarApp.) */
+function authorizeCalendar() {
+  var name = CalendarApp.getDefaultCalendar().getName();
+  Logger.log('Calendar access granted. Default calendar: ' + name);
+  return name;
+}
+
 /* Append `obj` to `name`, placing values under their matching header columns. */
 function appendMapped(name, obj) {
   const sh = sheetByName(name);
