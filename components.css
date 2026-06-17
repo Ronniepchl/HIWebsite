@@ -584,3 +584,76 @@
 
 .mono { font-family: var(--font-mono); }
 .muted { color: var(--text-dim); }
+
+/* ---- Testimonials (เสียงจากลูกค้า) ---- */
+.testimonials { background: var(--bg-soft); }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 44px;
+}
+.testimonial-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 30px 28px;
+  position: relative;
+}
+.testimonial-mark {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 56px;
+  line-height: 0.5;
+  height: 24px;
+  color: var(--accent);
+  opacity: 0.2;
+}
+.testimonial-quote {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-soft);
+}
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.testimonial-avatar {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-family: var(--font-display);
+}
+.testimonial-meta { display: flex; flex-direction: column; line-height: 1.4; }
+.testimonial-name { font-weight: 600; color: var(--text); }
+.testimonial-role { font-size: 13px; color: var(--text-dim); }
+.testimonial-video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: #000;
+  margin-bottom: 4px;
+}
+.testimonial-video video,
+.testimonial-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+  display: block;
+}
+.testimonial-card.has-video .testimonial-mark { display: none; }
+@media (max-width: 860px) { .testimonials-grid { grid-template-columns: 1fr; } }

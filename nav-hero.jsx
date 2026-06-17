@@ -10,7 +10,8 @@ function Nav({ onScore }) {
   }, []);
   const links = [
     ["ความจริงเรื่องประกัน", "#truth"], ["Life Protection Score™", "#score"], ["ทำไมเราถึงต่าง", "#why"],
-    ["วิธีทำงาน", "#how"], ["ความคุ้มครอง", "#areas"], ["Protection Analysis Team™", "#team"], ["คำถามที่พบบ่อย", "#faq"],
+    ["วิธีทำงาน", "#how"], ["ความคุ้มครอง", "#areas"], ["Protection Analysis Team™", "#team"],
+    ["เสียงจากลูกค้า", "#testimonials"], ["คำถามที่พบบ่อย", "#faq"],
   ];
   const badges = ["ไม่เร่งขาย", "บอกทั้งข้อดีและข้อจำกัด", "เข้าใจง่าย ไม่ใช้ศัพท์ประกัน"];
   const [badgeIdx, setBadgeIdx] = React.useState(0);
@@ -175,7 +176,7 @@ function Hero({ variant = "editorial", motion, onScore, onReport }) {
             <div className="hero-right">
               <div className="hero-card card">
                 <div className="hero-card-head">
-                  <span className="hero-card-title">ภาพรวมความคุ้มครองของคุณ</span>
+                  <span className="hero-card-title">ตัวอย่างภาพรวมความคุ้มครองของคุณ</span>
                   <span className="tag">SNAPSHOT</span>
                 </div>
                 <div className="hero-card-score">

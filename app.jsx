@@ -66,6 +66,7 @@ function App() {
         <Areas />
         <Stories />
         <Team />
+        <Testimonials />
         <Career onJoin={openAdvisor} />
         <FAQ />
         <FinalCTA onScore={openScore} onReport={openReport} />

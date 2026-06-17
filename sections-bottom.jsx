@@ -31,6 +31,44 @@ function Stories() {
   );
 }
 
+function Testimonials() {
+  return (
+    <section className="section testimonials" id="testimonials">
+      <div className="wrap">
+        <SectionHead center kicker="CLIENT VOICES"
+          title="เสียงจากลูกค้า"
+          lede="ความรู้สึกของผู้ที่ได้เข้าใจความคุ้มครองของตัวเองอย่างแท้จริง ก่อนตัดสินใจ" />
+        <div className="testimonials-grid">
+          {window.TESTIMONIALS.map((t, i) => (
+            <figure key={i} className={"testimonial-card card reveal" + ((t.video || t.youtube) ? " has-video" : "")} style={{ transitionDelay:(i*80)+"ms" }}>
+              {t.youtube ? (
+                <div className="testimonial-video">
+                  <iframe src={"https://www.youtube.com/embed/" + t.youtube} title={t.name}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen></iframe>
+                </div>
+              ) : t.video ? (
+                <div className="testimonial-video">
+                  <video src={t.video} poster={t.poster || undefined} controls muted playsInline preload="metadata" />
+                </div>
+              ) : null}
+              <span className="testimonial-mark" aria-hidden="true">“</span>
+              <blockquote className="testimonial-quote">{t.quote}</blockquote>
+              <figcaption className="testimonial-author">
+                <span className="testimonial-avatar" aria-hidden="true">{t.initial}</span>
+                <span className="testimonial-meta">
+                  <span className="testimonial-name">{t.name}</span>
+                  <span className="testimonial-role">{t.role}</span>
+                </span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Team() {
   return (
     <section className="section team" id="team">

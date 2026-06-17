@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "human-insurance-website",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8000", "--directory", "C:/Users/admin/Documents/Human-insurance.com"],
+      "port": 8000,
+      "autoPort": false
+    },
+    {
+      "name": "insureflow-webapp",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8001", "--directory", "C:/Users/admin/Documents/WebApp"],
+      "port": 8001,
+      "autoPort": false
+    }
+  ]
+}

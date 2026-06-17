@@ -216,6 +216,20 @@ const STORIES = [
     learned: "จำนวนกรมธรรม์ไม่สำคัญเท่าความครอบคลุมของความเสี่ยงจริง" },
 ];
 
+// ---- Testimonials (เสียงจากลูกค้า) — sample voices, replace with real ones ----
+// To add a short clip to any card, add ONE of these fields:
+//   video: "assets/testimonial-1.mp4"   // local/hosted .mp4 (optional: poster: "assets/poster-1.jpg")
+//   youtube: "dQw4w9WgXcQ"              // YouTube video ID only
+const TESTIMONIALS = [
+  { quote: "ครั้งแรกที่มีคนอธิบายกรมธรรม์ให้ฟังจนเข้าใจจริง ๆ ว่าอะไรคุ้มครอง อะไรไม่คุ้มครอง โดยไม่กดดันให้ซื้อเลย",
+    name: "คุณศิริพร ว.", role: "พนักงานบริษัท · กรุงเทพฯ", initial: "ศ",
+    youtube: "aqz-KE-bpKQ" }, // placeholder clip — replace with the real testimonial video ID
+  { quote: "หลังทำ Life Protection Score เพิ่งรู้ว่าประกันกลุ่มของบริษัทมีช่องว่างตรงไหน ทำให้วางแผนเสริมได้ตรงจุดขึ้นมาก",
+    name: "คุณธนกร พ.", role: "เจ้าของธุรกิจ · เชียงใหม่", initial: "ธ" },
+  { quote: "ชอบที่เขาบอกตรง ๆ ทั้งสิ่งที่คุ้มครองและข้อจำกัด ไม่ใช่แค่เชียร์ให้ซื้อ ทำให้ตัดสินใจได้อย่างมั่นใจ",
+    name: "คุณพิมพ์ชนก ร.", role: "คุณแม่ลูกสอง · นนทบุรี", initial: "พ" },
+];
+
 // ---- Team (advisors) ----
 const TEAM = [
   { name: "คุณมงคล ตั้งมั่นในกิต", en: "Mongkol T.", role: "หัวหน้าทีมวิเคราะห์ความคุ้มครอง", roleEn: "Head of Protection Analysis",
@@ -239,6 +253,6 @@ const FAQS = [
 ];
 
 Object.assign(window, {
-  LPS_QUESTIONS, LPS_SEGMENTS, TRUTH_CARDS, COMPARE,
-  STEPS, AREAS, STORIES, TEAM, FAQS,
+  LPS_QUESTIONS, LPS_SEGMENTS, TRUTH_CARDS, TRUTH_CONTRAST, COMPARE,
+  STEPS, AREAS, STORIES, TESTIMONIALS, TEAM, FAQS,
 });
