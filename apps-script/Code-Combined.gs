@@ -931,7 +931,18 @@ function bdayInfo(mmdd, birth) {
 
 function fmtShort(v) { const d = toDate(v); return d ? Utilities.formatDate(d, TZ, 'd MMM') : ''; }
 function fmtLong(v) { const d = toDate(v) || NOW; return Utilities.formatDate(d, TZ, 'd MMM yyyy'); }
-function fmtTime(v) { if (v instanceof Date) return Utilities.formatDate(v, TZ, 'HH:mm'); return String(v || '').trim(); }
+function fmtTime(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, TZ, 'HH:mm');
+  var s = String(v || '').trim();
+  if (!s) return '';
+  // Normalize any "h:mm", "h:mm AM/PM" (optional seconds) to 24-hour HH:mm.
+  var m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])?$/);
+  if (!m) return s;
+  var h = parseInt(m[1], 10), ap = m[3] ? m[3].toLowerCase() : '';
+  if (ap === 'pm' && h < 12) h += 12;
+  else if (ap === 'am' && h === 12) h = 0;
+  return (h < 10 ? '0' + h : '' + h) + ':' + m[2];
+}
 function tseconds(v) { const s = String(v || ''); const m = s.match(/(\d{1,2}):(\d{2})/); return m ? (+m[1] * 3600 + +m[2] * 60) * 1000 : 0; }
 
 function ramp(end, n) {
