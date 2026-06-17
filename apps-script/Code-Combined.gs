@@ -134,6 +134,7 @@ function handleWrite(action, p) {
     if (action === 'addLead') return addLeadRow(p);
     if (action === 'addAgent') return addAgentRow(p);
     if (action === 'addNote') return addNoteRow(p);
+    if (action === 'addSchedule') return addScheduleRow(p);
     return { error: 'Unknown action: ' + action };
   } finally {
     lock.releaseLock();
@@ -227,6 +228,94 @@ function addNoteRow(p) {
   };
   appendMapped(TAB.activities, obj);
   return { ok: true, type: 'note', id: id, record: buildActivities([obj])[0] };
+}
+
+/* ----- Schedule a next action: Google Calendar event + persisted Task ----- *
+   Requires the Calendar scope; the first deploy after adding this prompts a
+   one-time re-authorization. Events land on the deploying user's (owner's)
+   default calendar; a guest email, when supplied, gets an invite. */
+var SCHEDULE_TASK_HEADERS = ['TaskID', 'TaskType', 'RelatedType', 'RelatedID', 'RelatedName',
+  'Title', 'DueDate', 'DueTime', 'SnoozeUntil', 'Status', 'Priority', 'Notes', 'CreatedAt', 'UpdatedAt'];
+
+function addScheduleRow(p) {
+  var type = p.type || 'Follow-up';
+  var name = p.agentName || '';
+  var title = type + (name ? ' · ' + name : '');
+  var dateStr = p.date || today();
+  var timeStr = p.time || '09:00';
+  // Bangkok is UTC+7 all year, so pin the offset — independent of script TZ.
+  var start = new Date(dateStr + 'T' + timeStr + ':00+07:00');
+  var end = new Date(start.getTime() + 60 * 60 * 1000);
+
+  // 1) Create the calendar event on the owner's default calendar.
+  var calendarOk = false, calendarError = '';
+  try {
+    var opts = { description: p.remark || '' };
+    var guest = String(p.guest || '').trim();
+    if (guest.indexOf('@') > -1) { opts.guests = guest; opts.sendInvites = true; }
+    CalendarApp.getDefaultCalendar().createEvent(title, start, end, opts);
+    calendarOk = true;
+  } catch (err) {
+    calendarError = String(err);
+  }
+
+  // 2) Persist as a Task so it survives reloads and shows on the dashboard.
+  var taskId = '';
+  try { taskId = appendScheduleTask_(p, title, dateStr, timeStr); } catch (e2) {}
+
+  // 3) Best-effort: reflect the next action on the agent's own row.
+  try { updateAgentSchedule_(p, type, dateStr, timeStr); } catch (e3) {}
+
+  return { ok: true, type: 'schedule', id: taskId, calendar: calendarOk, calendarError: calendarError };
+}
+
+function appendScheduleTask_(p, title, dateStr, timeStr) {
+  var sh = sheetByName(TAB.tasks);
+  if (!sh) {
+    sh = ss_().insertSheet(TAB.tasks);
+    sh.appendRow(SCHEDULE_TASK_HEADERS);
+    sh.setFrozenRows(1);
+  }
+  var id = nextId(TAB.tasks, 'TaskID', 'TSK-');
+  appendMapped(TAB.tasks, {
+    TaskID: id,
+    TaskType: p.type || 'Follow-up',
+    RelatedType: 'AgentLead',
+    RelatedID: p.agentId || '',
+    RelatedName: p.agentName || '',
+    Title: title,
+    DueDate: dateStr,
+    DueTime: timeStr,
+    Status: 'Open',
+    Priority: 'normal',
+    Notes: p.remark || '',
+    CreatedAt: nowIso(),
+    UpdatedAt: nowIso(),
+  });
+  return id;
+}
+
+function updateAgentSchedule_(p, type, dateStr, timeStr) {
+  var sh = sheetByName(TAB.agents);
+  if (!sh || !p.agentId) return;
+  var headers = headersOf(sh);
+  var idCol = headers.indexOf('AgentLeadID');
+  if (idCol < 0 || sh.getLastRow() < 2) return;
+  var ids = sh.getRange(2, idCol + 1, sh.getLastRow() - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]) === String(p.agentId)) {
+      var row = i + 2, isInterview = /interview/i.test(type);
+      setCellIfCol_(sh, headers, row, isInterview ? 'InterviewDate' : 'NextFollowUpDate', dateStr);
+      if (isInterview) setCellIfCol_(sh, headers, row, 'InterviewTime', timeStr);
+      setCellIfCol_(sh, headers, row, 'UpdatedAt', nowIso());
+      return;
+    }
+  }
+}
+
+function setCellIfCol_(sh, headers, row, colName, val) {
+  var c = headers.indexOf(colName);
+  if (c >= 0) sh.getRange(row, c + 1).setValue(val);
 }
 
 /* Append `obj` to `name`, placing values under their matching header columns. */
