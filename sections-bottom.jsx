@@ -83,7 +83,6 @@ function Team() {
                 {m.photo
                   ? <img className="team-portrait" src={m.photo} alt={m.name} loading="lazy"/>
                   : <span className="ph-label">PORTRAIT</span>}
-                <span className="team-focus tag">{m.focus}</span>
               </div>
               <div className="team-info">
                 <h3 className="team-name">{m.name}</h3>
