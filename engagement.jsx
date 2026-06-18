@@ -34,6 +34,7 @@ function WelcomeModal({ onScore, onReport, suppressed }) {
         </p>
         <div className="welcome-trust">
           <span><Icon name="check" size={14}/> ไม่เร่งขาย</span>
+          <span><Icon name="check" size={14}/> 7 คำถาม</span>
           <span><Icon name="check" size={14}/> 3 นาที</span>
           <span><Icon name="check" size={14}/> ไม่ต้องกรอกอีเมล</span>
         </div>
