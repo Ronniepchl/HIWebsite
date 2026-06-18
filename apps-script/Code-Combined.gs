@@ -36,6 +36,7 @@ const TZ = 'Asia/Bangkok';
 /* Tab names in the spreadsheet. Adjust here if you rename tabs. */
 const TAB = {
   customers: 'Customers',
+  policies: 'Policies',
   leads: 'Leads',
   agents: 'AgentLeads',
   tasks: 'Tasks',
@@ -43,6 +44,11 @@ const TAB = {
   config: 'Config',
   users: 'Users',
 };
+
+/* One row per policy in the Policies tab (keyed by CustomerID). Edit policies
+   directly in that tab — the dashboard groups them onto each customer. */
+const POLICY_HEADERS = ['CustomerID', 'PlanName', 'PolicyNumber', 'AnnualPremium',
+  'StartDate', 'RenewalDate', 'Status', 'Notes'];
 
 /* Auth: secret pepper for password hashing. CHANGE THIS to a long random
    string and keep it secret. If changed after users exist, re-hash them. */
@@ -166,7 +172,7 @@ function addCustomerRow(p) {
     UpdatedAt: nowIso(),
   };
   appendMapped(TAB.customers, obj);
-  return { ok: true, type: 'customer', id: id, record: buildCustomers([obj], [])[0] };
+  return { ok: true, type: 'customer', id: id, record: buildCustomers([obj], [], {})[0] };
 }
 
 function addLeadRow(p) {
@@ -375,8 +381,9 @@ function buildData() {
   const taskRows = readSheet(TAB.tasks);
   const actRows = readSheet(TAB.activities);
 
+  const policyRows = readSheet(TAB.policies);
   const activities = buildActivities(actRows);
-  const customers = buildCustomers(custRows, actRows);
+  const customers = buildCustomers(custRows, actRows, buildPolicyMap_(policyRows));
   const leads = buildLeads(leadRows);
   const agents = buildAgents(agentRows);
 
@@ -454,21 +461,77 @@ function loadConfig() {
 }
 
 /* ------------------------------ Entities ------------------------------ */
-function buildCustomers(rows, actRows) {
+/* Group Policies-tab rows by CustomerID into a map of policy objects. */
+function buildPolicyMap_(rows) {
+  const map = {};
+  (rows || []).forEach(function (r) {
+    const cid = String(r.CustomerID || '').trim();
+    if (!cid) return;
+    const prem = num(r.AnnualPremium);
+    (map[cid] = map[cid] || []).push({
+      plan: String(r.PlanName || '—'),
+      policyNo: String(r.PolicyNumber || ''),
+      premium: prem > 0 ? '฿' + commas(prem) + '/yr' : '฿—',
+      premiumNum: prem,
+      start: r.StartDate ? fmtShort(r.StartDate) : '',
+      renewal: r.RenewalDate ? fmtShort(r.RenewalDate) : '',
+      renewalRaw: r.RenewalDate || '',
+      renewalDays: r.RenewalDate ? daysFromNow(r.RenewalDate) : null,
+      status: String(r.Status || 'Active'),
+    });
+  });
+  return map;
+}
+
+function buildCustomers(rows, actRows, policyMap) {
   const remarks = groupRemarks(actRows || [], 'Customer');
+  policyMap = policyMap || {};
   return rows.map(function (c) {
     const id = String(c.CustomerID || '');
     const tier = String(c.Tier || 'Standard');
     const bi = bdayInfo(c.BirthdayMMDD, c.BirthDate);
-    const renewalDays = c.NearestRenewalDate ? daysFromNow(c.NearestRenewalDate) : null;
     const followDays = c.NextFollowUpDate ? daysFromNow(c.NextFollowUpDate) : null;
     const created = toDate(c.CreatedAt);
+
+    // Prefer policies from the Policies tab; fall back to the legacy single
+    // PrimaryPlanName/TotalAnnualPremium columns so older data still renders.
+    let policies = policyMap[id] || [];
+    if (!policies.length && String(c.PrimaryPlanName || '').trim()) {
+      policies = [{
+        plan: String(c.PrimaryPlanName), policyNo: '',
+        premium: premiumYr(c.TotalAnnualPremium), premiumNum: num(c.TotalAnnualPremium),
+        start: '', renewal: c.NearestRenewalDate ? fmtShort(c.NearestRenewalDate) : '',
+        renewalRaw: c.NearestRenewalDate || '',
+        renewalDays: c.NearestRenewalDate ? daysFromNow(c.NearestRenewalDate) : null,
+        status: 'Active',
+      }];
+    }
+    const totalPremium = policies.reduce(function (s, p) { return s + (p.premiumNum || 0); }, 0);
+    const premiumFmt = policies.length
+      ? (totalPremium > 0 ? '฿' + commas(totalPremium) + '/yr' : '฿—')
+      : premiumYr(c.TotalAnnualPremium);
+    const primaryPlan = policies.length ? policies[0].plan : String(c.PrimaryPlanName || '—');
+
+    // Nearest upcoming renewal across all policies, else the legacy column.
+    let renewalDays = c.NearestRenewalDate ? daysFromNow(c.NearestRenewalDate) : null;
+    let renewalDate = c.NearestRenewalDate;
+    const upcoming = policies.filter(function (p) { return p.renewalDays != null && p.renewalDays >= 0; });
+    if (upcoming.length) {
+      upcoming.sort(function (a, b) { return a.renewalDays - b.renewalDays; });
+      renewalDays = upcoming[0].renewalDays;
+      renewalDate = upcoming[0].renewalRaw;
+    }
+
     return {
       id: id,
       name: String(c.FullNameTH || c.FullNameEN || id),
       en: String(c.FullNameEN || ''),
-      policy: String(c.PrimaryPlanName || '—'),
-      premium: premiumYr(c.TotalAnnualPremium),
+      policy: primaryPlan,
+      policies: policies.map(function (p) {
+        return { plan: p.plan, policyNo: p.policyNo, premium: p.premium, start: p.start, renewal: p.renewal, status: p.status };
+      }),
+      policyCount: policies.length,
+      premium: premiumFmt,
       phone: String(c.Phone || '—'),
       email: String(c.Email || '—'),
       bday: bi.label || '—',
@@ -476,13 +539,36 @@ function buildCustomers(rows, actRows) {
       tier: tier,
       preferred: c.LineID ? 'LINE' : 'Call',
       last: relativeFrom(c.LastInteractionDate) || '—',
-      next: custNext(bi, renewalDays, c.NearestRenewalDate, followDays, c.NextFollowUpDate),
+      next: custNext(bi, renewalDays, renewalDate, followDays, c.NextFollowUpDate),
       status: custStatus(tier, renewalDays, followDays, bi.days, c.RelationshipStatus),
       mono: mono(c.FullNameTH || c.FullNameEN),
       years: created ? Math.max(0, NOW.getFullYear() - created.getFullYear()) : 0,
       remarks: remarks[id] || (c.Notes ? [{ date: fmtLong(c.UpdatedAt || NOW), text: String(c.Notes) }] : []),
     };
   });
+}
+
+/* Run ONCE from the editor: creates the Policies tab and seeds each customer's
+   current PrimaryPlanName as their first policy, so you start with real data
+   and can add more rows. Safe to re-run — it won't overwrite existing rows. */
+function setupPolicies() {
+  const ss = ss_();
+  let sh = ss.getSheetByName(TAB.policies);
+  if (!sh) {
+    sh = ss.insertSheet(TAB.policies);
+    sh.getRange(1, 1, 1, POLICY_HEADERS.length).setValues([POLICY_HEADERS]);
+    sh.setFrozenRows(1);
+  }
+  if (sh.getLastRow() > 1) return 'Policies tab already has data — left untouched.';
+  const rows = [];
+  readSheet(TAB.customers).forEach(function (c) {
+    const plan = String(c.PrimaryPlanName || '').trim();
+    if (!plan) return;
+    rows.push([String(c.CustomerID || ''), plan, '', num(c.TotalAnnualPremium) || '',
+      '', c.NearestRenewalDate || '', 'Active', '']);
+  });
+  if (rows.length) sh.getRange(2, 1, rows.length, POLICY_HEADERS.length).setValues(rows);
+  return 'Policies tab ready, seeded ' + rows.length + ' policies.';
 }
 
 function custStatus(tier, renewalDays, followDays, bdayDays, rel) {
