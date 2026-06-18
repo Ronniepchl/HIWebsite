@@ -398,11 +398,21 @@ function Areas() {
           lede="ครอบคลุมทุกมิติของความเสี่ยง โดยไม่ผลักดันให้คุณซื้อเกินจำเป็น" />
         <div className="areas-grid">
           {window.AREAS.map((a,i) => (
-            <div key={a.en} className={"area-card card reveal area-tone-" + a.tone} style={{ transitionDelay:(i*55)+"ms" }}>
+            <div key={a.en} className={"area-card card reveal area-tone-" + a.tone} tabIndex={0} style={{ transitionDelay:(i*55)+"ms" }}>
               <div className="area-ic"><Icon name={a.icon} size={24}/></div>
               <h3 className="area-th">{a.th}</h3>
               <div className="area-en mono">{a.en}</div>
               <p className="area-body">{a.body}</p>
+              {a.points && (
+                <div className="area-points">
+                  <ul>
+                    {a.points.map((pt, j) => (
+                      <li key={j}><Icon name="check" size={14}/><span>{pt}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <span className="area-more mono">ดูรายละเอียดความคุ้มครอง</span>
             </div>
           ))}
         </div>
