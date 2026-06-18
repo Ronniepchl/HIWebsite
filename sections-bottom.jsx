@@ -275,7 +275,7 @@ function Footer() {
               ["youtube", "YouTube", "https://youtube.com/"],
               ["tiktok", "TikTok", "https://tiktok.com/"],
               ["instagram", "Instagram", "https://instagram.com/"],
-              ["line", "LINE", "https://line.me/"],
+              ["line", "LINE", "https://lin.ee/tdoUbq5"],
               ["facebook", "Facebook", "https://facebook.com/"],
             ].map(([icon, label, href]) => (
               <a key={icon} className={"social-link social-" + icon} href={href}
