@@ -200,7 +200,7 @@ function AFTalk({ open, onClose }) {
   return (
     <div className="lps-overlay on" onClick={onClose}>
       <div className="te-book card" onClick={e=>e.stopPropagation()}>
-        <button className="lps-close te-book-close" onClick={onClose}><TIcon name="plus" size={20} style={{transform:"rotate(45deg)"}}/></button>
+        <button className="lps-close te-book-close" onClick={onClose}><TIcon name="close" size={20}/></button>
         {!done ? (
           <>
             <span className="te-rkicker mono">LET'S TALK</span>

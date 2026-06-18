@@ -18,6 +18,7 @@ const TE_ICONS = {
   arrow:    (p)=> <TIc {...p} d="M5 12h14M13 6l6 6-6 6" />,
   back:     (p)=> <TIc {...p} d="M19 12H5M11 6l-6 6 6 6" />,
   plus:     (p)=> <TIc {...p} d="M12 5v14M5 12h14" />,
+  close:    (p)=> <TIc {...p} d="M6 6l12 12M18 6L6 18" />,
   warn:     (p)=> <TIc {...p} d="M12 3l9 16H3z M12 10v4 M12 17h.01" />,
   doc:      (p)=> <TIc {...p}><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9 12h6M9 16h4"/></TIc>,
   q:        (p)=> <TIc {...p} d="M9.2 9a2.8 2.8 0 1 1 4 2.6c-1 .6-1.2 1-1.2 2M12 17h.01" />,

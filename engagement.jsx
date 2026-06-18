@@ -22,7 +22,7 @@ function WelcomeModal({ onScore, onReport, suppressed }) {
     <div className="lps-overlay on" onClick={close}>
       <div className="welcome-modal card" onClick={e => e.stopPropagation()}>
         <button className="lps-close welcome-close" onClick={close} aria-label="close">
-          <Icon name="plus" size={20} style={{ transform: "rotate(45deg)" }}/>
+          <Icon name="close" size={20}/>
         </button>
         <div className="welcome-glow"/>
         <div className="welcome-mark"><BrandMark size={46}/></div>
@@ -143,7 +143,7 @@ function ExitIntent({ onScore, onReport, suppressed }) {
     <div className="lps-overlay on" onClick={close}>
       <div className="exit-modal card" onClick={e => e.stopPropagation()}>
         <button className="lps-close exit-close" onClick={close} aria-label="close">
-          <Icon name="plus" size={20} style={{ transform: "rotate(45deg)" }}/>
+          <Icon name="close" size={20}/>
         </button>
         <div className="exit-glow"/>
         <span className="exit-tag mono">ก่อนคุณจะไป</span>

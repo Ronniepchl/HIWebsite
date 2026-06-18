@@ -131,7 +131,7 @@ function ScoreWizard({ open, onClose, onReport, tweaks }) {
             <span className="lps-head-t">Life Protection Score™</span>
           </div>
           <button className="lps-close" onClick={onClose} aria-label="close">
-            <Icon name="plus" size={20} style={{ transform: "rotate(45deg)" }}/>
+            <Icon name="close" size={20}/>
           </button>
         </div>
 

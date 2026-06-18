@@ -337,7 +337,7 @@ function ReportModal({ open, onClose }) {
     <div className="lps-overlay on" onClick={onClose}>
       <div className="report-modal card" onClick={e => e.stopPropagation()}>
         <button className="lps-close report-close" onClick={onClose} aria-label="close">
-          <Icon name="plus" size={20} style={{ transform:"rotate(45deg)" }}/>
+          <Icon name="close" size={20}/>
         </button>
         {!done ? (
           <div className="report-grid">
