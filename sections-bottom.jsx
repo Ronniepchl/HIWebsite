@@ -274,7 +274,7 @@ function Footer() {
             {[
               ["youtube", "YouTube", "https://youtube.com/"],
               ["tiktok", "TikTok", "https://tiktok.com/"],
-              ["instagram", "Instagram", "https://instagram.com/"],
+              ["instagram", "Instagram", "https://www.instagram.com/humaninsurance/"],
               ["line", "LINE", "https://lin.ee/tdoUbq5"],
               ["facebook", "Facebook", "https://www.facebook.com/humaninsuranceth"],
             ].map(([icon, label, href]) => (
