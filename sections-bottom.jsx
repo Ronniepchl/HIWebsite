@@ -272,15 +272,13 @@ function Footer() {
           </p>
           <div className="footer-social">
             {[
-              ["facebook", "Facebook", "https://facebook.com/"],
-              ["line", "LINE", "https://line.me/"],
-              ["instagram", "Instagram", "https://instagram.com/"],
+              ["youtube", "YouTube", "https://youtube.com/"],
               ["tiktok", "TikTok", "https://tiktok.com/"],
-              ["phone", "โทรหาเรา", "tel:+66000000000"],
+              ["instagram", "Instagram", "https://instagram.com/"],
+              ["line", "LINE", "https://line.me/"],
             ].map(([icon, label, href]) => (
               <a key={icon} className={"social-link social-" + icon} href={href}
-                 aria-label={label} title={label}
-                 {...(icon === "phone" ? {} : { target: "_blank", rel: "noopener noreferrer" })}>
+                 aria-label={label} title={label} target="_blank" rel="noopener noreferrer">
                 <SocialIcon name={icon} size={18}/>
               </a>
             ))}

@@ -602,11 +602,10 @@
   box-shadow: 0 10px 22px -10px rgba(19,41,75,.5);
   outline: none;
 }
-.social-facebook:hover,  .social-facebook:focus-visible  { background: #1877F2; border-color: #1877F2; }
-.social-line:hover,      .social-line:focus-visible      { background: #06C755; border-color: #06C755; }
-.social-instagram:hover, .social-instagram:focus-visible { background: linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5); border-color: transparent; }
+.social-youtube:hover,   .social-youtube:focus-visible   { background: #FF0000; border-color: #FF0000; }
 .social-tiktok:hover,    .social-tiktok:focus-visible    { background: #010101; border-color: #010101; }
-.social-phone:hover,     .social-phone:focus-visible     { background: var(--navy); border-color: var(--navy); }
+.social-instagram:hover, .social-instagram:focus-visible { background: linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5); border-color: transparent; }
+.social-line:hover,      .social-line:focus-visible      { background: #06C755; border-color: #06C755; }
 .footer-cols { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
 .footer-col { display: flex; flex-direction: column; gap: 11px; }
 .footer-col-h { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 4px; }
