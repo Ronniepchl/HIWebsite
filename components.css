@@ -586,6 +586,27 @@
 .footer-inner { display: grid; grid-template-columns: 1.4fr 2fr; gap: 50px; }
 .footer-philo { margin-top: 18px; font-family: var(--font-display); font-size: 16px; color: var(--text-soft); line-height: 1.6; }
 .footer-philo .muted { font-family: var(--font-sans); font-size: 13px; color: var(--text-dim); }
+/* social / contact links */
+.footer-social { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.social-link {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--text-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: transform .25s ease, background .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.social-link:hover, .social-link:focus-visible {
+  transform: translateY(-3px);
+  color: #fff;
+  box-shadow: 0 10px 22px -10px rgba(19,41,75,.5);
+  outline: none;
+}
+.social-facebook:hover,  .social-facebook:focus-visible  { background: #1877F2; border-color: #1877F2; }
+.social-line:hover,      .social-line:focus-visible      { background: #06C755; border-color: #06C755; }
+.social-instagram:hover, .social-instagram:focus-visible { background: linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5); border-color: transparent; }
+.social-tiktok:hover,    .social-tiktok:focus-visible    { background: #010101; border-color: #010101; }
+.social-phone:hover,     .social-phone:focus-visible     { background: var(--navy); border-color: var(--navy); }
 .footer-cols { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
 .footer-col { display: flex; flex-direction: column; gap: 11px; }
 .footer-col-h { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 4px; }

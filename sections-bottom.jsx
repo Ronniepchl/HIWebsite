@@ -271,6 +271,21 @@ function Footer() {
             “Trust is the real product.”<br/>
             <span className="muted">ที่ปรึกษาที่กล้าพูดความจริงเรื่องประกัน</span>
           </p>
+          <div className="footer-social">
+            {[
+              ["facebook", "Facebook", "https://facebook.com/"],
+              ["line", "LINE", "https://line.me/"],
+              ["instagram", "Instagram", "https://instagram.com/"],
+              ["tiktok", "TikTok", "https://tiktok.com/"],
+              ["phone", "โทรหาเรา", "tel:+66000000000"],
+            ].map(([icon, label, href]) => (
+              <a key={icon} className={"social-link social-" + icon} href={href}
+                 aria-label={label} title={label}
+                 {...(icon === "phone" ? {} : { target: "_blank", rel: "noopener noreferrer" })}>
+                <SocialIcon name={icon} size={18}/>
+              </a>
+            ))}
+          </div>
         </div>
         <div className="footer-cols">
           {cols.map(([h, items]) => (
