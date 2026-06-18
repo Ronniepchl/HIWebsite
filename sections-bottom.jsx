@@ -276,7 +276,7 @@ function Footer() {
               ["tiktok", "TikTok", "https://tiktok.com/"],
               ["instagram", "Instagram", "https://instagram.com/"],
               ["line", "LINE", "https://lin.ee/tdoUbq5"],
-              ["facebook", "Facebook", "https://facebook.com/"],
+              ["facebook", "Facebook", "https://www.facebook.com/humaninsuranceth"],
             ].map(([icon, label, href]) => (
               <a key={icon} className={"social-link social-" + icon} href={href}
                  aria-label={label} title={label} target="_blank" rel="noopener noreferrer">
