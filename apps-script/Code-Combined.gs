@@ -48,7 +48,7 @@ const TAB = {
 /* One row per policy in the Policies tab (keyed by CustomerID). Edit policies
    directly in that tab — the dashboard groups them onto each customer. */
 const POLICY_HEADERS = ['CustomerID', 'PlanName', 'PolicyNumber', 'AnnualPremium',
-  'StartDate', 'RenewalDate', 'Status', 'Notes'];
+  'StartDate', 'RenewalDate', 'Status', 'Notes', 'Riders'];
 
 /* Auth: secret pepper for password hashing. CHANGE THIS to a long random
    string and keep it secret. If changed after users exist, re-hash them. */
@@ -141,6 +141,7 @@ function handleWrite(action, p) {
     if (action === 'addAgent') return addAgentRow(p);
     if (action === 'addNote') return addNoteRow(p);
     if (action === 'addSchedule') return addScheduleRow(p);
+    if (action === 'addPolicy') return addPolicyRow(p);
     return { error: 'Unknown action: ' + action };
   } finally {
     lock.releaseLock();
@@ -156,6 +157,7 @@ function addCustomerRow(p) {
     FullNameEN: p.en || '',
     Phone: p.phone || '',
     PhoneSearch: digitsOnly(p.phone),
+    Email: p.email || '',
     Tier: p.tier || 'Standard',
     Status: 'Active',
     Source: p.source || 'Manual',
@@ -234,6 +236,30 @@ function addNoteRow(p) {
   };
   appendMapped(TAB.activities, obj);
   return { ok: true, type: 'note', id: id, record: buildActivities([obj])[0] };
+}
+
+/* Add a policy row to the Policies tab (one policy for a given CustomerID).
+   Riders is a free-text list like "WP:R007BA; HBP:R008FA". */
+function addPolicyRow(p) {
+  let sh = sheetByName(TAB.policies);
+  if (!sh) {
+    sh = ss_().insertSheet(TAB.policies);
+    sh.getRange(1, 1, 1, POLICY_HEADERS.length).setValues([POLICY_HEADERS]);
+    sh.setFrozenRows(1);
+  }
+  const obj = {
+    CustomerID: p.customerId || p.cid || '',
+    PlanName: p.plan || p.name || '',
+    PolicyNumber: p.policyNo || p.number || '',
+    AnnualPremium: p.premium ? String(p.premium).replace(/[^0-9.]/g, '') : '',
+    StartDate: p.start || '',
+    RenewalDate: p.renewal || '',
+    Status: p.status || 'Active',
+    Notes: p.note || '',
+    Riders: p.riders || '',
+  };
+  appendMapped(TAB.policies, obj);
+  return { ok: true, type: 'policy', id: obj.PolicyNumber, customerId: obj.CustomerID };
 }
 
 /* ----- Schedule a next action: Google Calendar event + persisted Task ----- *
@@ -461,6 +487,14 @@ function loadConfig() {
 }
 
 /* ------------------------------ Entities ------------------------------ */
+/* Parse a Riders cell ("WP:R007BA; HBP:R008FA") into [{label, code}]. */
+function parseRiders_(v) {
+  return String(v || '').split(/[;\n]+/).map(function (s) { return s.trim(); }).filter(String).map(function (s) {
+    const i = s.indexOf(':');
+    return i > -1 ? { label: s.slice(0, i).trim(), code: s.slice(i + 1).trim() } : { label: s, code: '' };
+  });
+}
+
 /* Group Policies-tab rows by CustomerID into a map of policy objects. */
 function buildPolicyMap_(rows) {
   const map = {};
@@ -478,6 +512,7 @@ function buildPolicyMap_(rows) {
       renewalRaw: r.RenewalDate || '',
       renewalDays: r.RenewalDate ? daysFromNow(r.RenewalDate) : null,
       status: String(r.Status || 'Active'),
+      riders: parseRiders_(r.Riders),
     });
   });
   return map;
@@ -528,7 +563,7 @@ function buildCustomers(rows, actRows, policyMap) {
       en: String(c.FullNameEN || ''),
       policy: primaryPlan,
       policies: policies.map(function (p) {
-        return { plan: p.plan, policyNo: p.policyNo, premium: p.premium, start: p.start, renewal: p.renewal, status: p.status };
+        return { plan: p.plan, policyNo: p.policyNo, premium: p.premium, start: p.start, renewal: p.renewal, status: p.status, riders: p.riders || [] };
       }),
       policyCount: policies.length,
       premium: premiumFmt,
@@ -565,7 +600,7 @@ function setupPolicies() {
     const plan = String(c.PrimaryPlanName || '').trim();
     if (!plan) return;
     rows.push([String(c.CustomerID || ''), plan, '', num(c.TotalAnnualPremium) || '',
-      '', c.NearestRenewalDate || '', 'Active', '']);
+      '', c.NearestRenewalDate || '', 'Active', '', '']);
   });
   if (rows.length) sh.getRange(2, 1, rows.length, POLICY_HEADERS.length).setValues(rows);
   return 'Policies tab ready, seeded ' + rows.length + ' policies.';
