@@ -47,8 +47,12 @@ const TAB = {
 
 /* One row per policy in the Policies tab (keyed by CustomerID). Edit policies
    directly in that tab — the dashboard groups them onto each customer. */
-const POLICY_HEADERS = ['CustomerID', 'PlanName', 'PolicyNumber', 'AnnualPremium',
-  'StartDate', 'RenewalDate', 'Status', 'Notes', 'Riders'];
+const POLICY_HEADERS = ['PolicyID', 'CustomerID', 'PolicyNumber', 'PolicyStatus', 'PolicyStatusCode',
+  'PlanCode', 'PlanName', 'MainCoverCode', 'SumAssured', 'PremiumAmount', 'PremiumToPay',
+  'PaymentMode', 'PaymentMethod', 'CoverageTerm', 'PremiumTerm', 'DividendOption',
+  'PolicyStartDate', 'PolicyEndDate', 'PolicyApprovalDate', 'NextPremiumDueDate', 'LastPaymentDate',
+  'RiderCode', 'RiderName', 'RiderSumAssured', 'RiderPremium', 'AgentCode', 'AgentName',
+  'PolicyStage', 'Notes', 'CreatedAt', 'UpdatedAt'];
 
 /* Auth: secret pepper for password hashing. CHANGE THIS to a long random
    string and keep it secret. If changed after users exist, re-hash them. */
@@ -247,19 +251,33 @@ function addPolicyRow(p) {
     sh.getRange(1, 1, 1, POLICY_HEADERS.length).setValues([POLICY_HEADERS]);
     sh.setFrozenRows(1);
   }
-  const obj = {
+  const now = nowIso();
+  const base = {
     CustomerID: p.customerId || p.cid || '',
-    PlanName: p.plan || p.name || '',
     PolicyNumber: p.policyNo || p.number || '',
-    AnnualPremium: p.premium ? String(p.premium).replace(/[^0-9.]/g, '') : '',
-    StartDate: p.start || '',
-    RenewalDate: p.renewal || '',
-    Status: p.status || 'Active',
+    PlanName: p.plan || p.name || '',
+    PremiumAmount: p.premium ? String(p.premium).replace(/[^0-9.]/g, '') : '',
+    SumAssured: p.sumAssured ? String(p.sumAssured).replace(/[^0-9.]/g, '') : '',
+    PolicyStartDate: p.start || '',
+    NextPremiumDueDate: p.renewal || '',
+    PolicyStage: p.status || 'Active',
     Notes: p.note || '',
-    Riders: p.riders || '',
+    CreatedAt: now,
+    UpdatedAt: now,
   };
-  appendMapped(TAB.policies, obj);
-  return { ok: true, type: 'policy', id: obj.PolicyNumber, customerId: obj.CustomerID };
+  // Riders param: "WP:R007BA; HSMHPE:R004KD" → one row each (schema = 1 rider/row).
+  const riders = parseRiders_(p.riders);
+  if (!riders.length) {
+    appendMapped(TAB.policies, base);
+  } else {
+    riders.forEach(function (rd, i) {
+      const row = (i === 0) ? base : { CustomerID: base.CustomerID, PolicyNumber: base.PolicyNumber, CreatedAt: now, UpdatedAt: now };
+      row.RiderCode = rd.label;
+      row.RiderName = rd.code;
+      appendMapped(TAB.policies, row);
+    });
+  }
+  return { ok: true, type: 'policy', id: base.PolicyNumber, customerId: base.CustomerID, riders: riders.length };
 }
 
 /* ----- Schedule a next action: Google Calendar event + persisted Task ----- *
@@ -495,24 +513,46 @@ function parseRiders_(v) {
   });
 }
 
-/* Group Policies-tab rows by CustomerID into a map of policy objects. */
+/* Group Policies-tab rows by CustomerID, then by PolicyNumber. The tab models
+   one rider per row (RiderCode/RiderName), so multiple rows sharing a
+   PolicyNumber merge into one policy with several riders. Reads the real
+   schema columns (PremiumAmount, PolicyStartDate, NextPremiumDueDate, …). */
 function buildPolicyMap_(rows) {
-  const map = {};
+  const byCust = {};
   (rows || []).forEach(function (r) {
     const cid = String(r.CustomerID || '').trim();
     if (!cid) return;
-    const prem = num(r.AnnualPremium);
-    (map[cid] = map[cid] || []).push({
-      plan: String(r.PlanName || '—'),
-      policyNo: String(r.PolicyNumber || ''),
-      premium: prem > 0 ? '฿' + commas(prem) + '/yr' : '฿—',
-      premiumNum: prem,
-      start: r.StartDate ? fmtShort(r.StartDate) : '',
-      renewal: r.RenewalDate ? fmtShort(r.RenewalDate) : '',
-      renewalRaw: r.RenewalDate || '',
-      renewalDays: r.RenewalDate ? daysFromNow(r.RenewalDate) : null,
-      status: String(r.Status || 'Active'),
-      riders: parseRiders_(r.Riders),
+    const pno = String(r.PolicyNumber || '').trim();
+    byCust[cid] = byCust[cid] || { order: [], map: {} };
+    const key = pno || ('row' + byCust[cid].order.length);
+    let pol = byCust[cid].map[key];
+    if (!pol) {
+      pol = byCust[cid].map[key] = { plan: '', policyNo: pno, premium: '฿—', premiumNum: 0,
+        start: '', renewal: '', renewalRaw: '', renewalDays: null, status: '', riders: [] };
+      byCust[cid].order.push(key);
+    }
+    const plan = String(r.PlanName || '').trim();
+    if (plan && !pol.plan) pol.plan = plan;
+    const prem = num(r.PremiumAmount);
+    if (prem > 0 && pol.premiumNum === 0) { pol.premiumNum = prem; pol.premium = '฿' + commas(prem) + '/yr'; }
+    if (r.PolicyStartDate && !pol.start) pol.start = fmtShort(r.PolicyStartDate);
+    if (r.NextPremiumDueDate && !pol.renewalRaw) {
+      pol.renewalRaw = r.NextPremiumDueDate;
+      pol.renewal = fmtShort(r.NextPremiumDueDate);
+      pol.renewalDays = daysFromNow(r.NextPremiumDueDate);
+    }
+    const st = String(r.PolicyStage || r.PolicyStatus || '').trim();
+    if (st && !pol.status) pol.status = st;
+    const rc = String(r.RiderCode || '').trim(), rn = String(r.RiderName || '').trim();
+    if (rc || rn) pol.riders.push({ label: rc || rn, title: rn });
+  });
+  const map = {};
+  Object.keys(byCust).forEach(function (cid) {
+    map[cid] = byCust[cid].order.map(function (k) {
+      const p = byCust[cid].map[k];
+      if (!p.plan) p.plan = '—';
+      if (!p.status) p.status = 'Active';
+      return p;
     });
   });
   return map;
@@ -588,22 +628,11 @@ function buildCustomers(rows, actRows, policyMap) {
    and can add more rows. Safe to re-run — it won't overwrite existing rows. */
 function setupPolicies() {
   const ss = ss_();
-  let sh = ss.getSheetByName(TAB.policies);
-  if (!sh) {
-    sh = ss.insertSheet(TAB.policies);
-    sh.getRange(1, 1, 1, POLICY_HEADERS.length).setValues([POLICY_HEADERS]);
-    sh.setFrozenRows(1);
-  }
-  if (sh.getLastRow() > 1) return 'Policies tab already has data — left untouched.';
-  const rows = [];
-  readSheet(TAB.customers).forEach(function (c) {
-    const plan = String(c.PrimaryPlanName || '').trim();
-    if (!plan) return;
-    rows.push([String(c.CustomerID || ''), plan, '', num(c.TotalAnnualPremium) || '',
-      '', c.NearestRenewalDate || '', 'Active', '', '']);
-  });
-  if (rows.length) sh.getRange(2, 1, rows.length, POLICY_HEADERS.length).setValues(rows);
-  return 'Policies tab ready, seeded ' + rows.length + ' policies.';
+  if (ss.getSheetByName(TAB.policies)) return 'Policies tab already exists — left untouched.';
+  const sh = ss.insertSheet(TAB.policies);
+  sh.getRange(1, 1, 1, POLICY_HEADERS.length).setValues([POLICY_HEADERS]);
+  sh.setFrozenRows(1);
+  return 'Policies tab created with standard headers.';
 }
 
 function custStatus(tier, renewalDays, followDays, bdayDays, rel) {
