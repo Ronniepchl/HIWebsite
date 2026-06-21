@@ -31,7 +31,7 @@ function ScoreBand({ onScore, motion }) {
             </div>
           </div>
           <div className="score-band-r">
-            <HeroGauge value={62} motion={motion} />
+            <HeroGauge value={45} motion={motion} />
             <div className="score-band-meta">
               <span className="tag">7 คำถาม</span>
               <span className="tag">~3 นาที</span>

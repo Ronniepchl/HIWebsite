@@ -61,7 +61,7 @@ function Nav({ onScore }) {
 }
 
 // Small animated arc gauge for hero preview
-function HeroGauge({ value = 73, motion }) {
+function HeroGauge({ value = 45, motion }) {
   const [v, setV] = React.useState(motion ? 0 : value);
   React.useEffect(() => {
     if (!motion) { setV(value); return; }
@@ -78,26 +78,36 @@ function HeroGauge({ value = 73, motion }) {
     const guard = setTimeout(() => { if (!done) setV(value); }, dur + 900);
     return () => { clearTimeout(id); clearTimeout(guard); cancelAnimationFrame(raf); };
   }, [value, motion]);
-  const R = 78, C = 2 * Math.PI * R, span = 0.75; // 270deg
-  const frac = v / 100;
+  const R = 80, C = 2 * Math.PI * R, span = 0.75; // 270deg
+  const frac = Math.max(0, Math.min(1, v / 100));
+  const tipDeg = 135 + 270 * frac, tipRad = tipDeg * Math.PI / 180;
+  const tx = 100 + R * Math.cos(tipRad), ty = 100 + R * Math.sin(tipRad);
+  // Colour the gauge by the score's band (red → amber → blue → green).
+  const seg = (window.LPS_SEGMENTS || []).find(s => value >= s.min && value <= s.max);
+  const color = (seg && seg.color) || "var(--c-partial)";
   return (
     <div className="hero-gauge">
       <svg viewBox="0 0 200 200" width="100%">
-        <circle cx="100" cy="100" r={R} fill="none" stroke="rgba(255,255,255,.07)"
-          strokeWidth="14" strokeLinecap="round"
-          strokeDasharray={`${C*span} ${C}`} transform="rotate(135 100 100)" />
-        <circle cx="100" cy="100" r={R} fill="none" stroke="url(#hg)"
-          strokeWidth="14" strokeLinecap="round"
-          strokeDasharray={`${C*span*frac} ${C}`} transform="rotate(135 100 100)"
-          style={{ transition: "stroke-dasharray .25s linear", filter: "drop-shadow(0 0 10px var(--accent-glow))" }} />
         <defs>
-          <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
-            <stop stopColor="#1d3a63"/><stop offset="1" stopColor="#2c9268"/>
-          </linearGradient>
+          <filter id="hgGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
         </defs>
+        <circle cx="100" cy="100" r={R} fill="none" stroke="var(--surface-3)"
+          strokeWidth="11" strokeLinecap="round"
+          strokeDasharray={`${C*span} ${C}`} transform="rotate(135 100 100)" />
+        <circle cx="100" cy="100" r={R} fill="none" stroke={color}
+          strokeWidth="11" strokeLinecap="round"
+          strokeDasharray={`${C*span*frac} ${C}`} transform="rotate(135 100 100)"
+          style={{ transition: "stroke-dasharray .3s ease, stroke .3s ease" }} />
+        {frac > 0.015 && <circle cx={tx} cy={ty} r="7.5" fill={color}
+          style={{ filter: "url(#hgGlow)", transition: "all .3s ease" }} />}
+        {frac > 0.015 && <circle cx={tx} cy={ty} r="3.2" fill="#fff"
+          style={{ transition: "all .3s ease" }} />}
       </svg>
       <div className="hero-gauge-c">
-        <span className="hg-num">{v}</span>
+        <span className="hg-num" style={{ color }}>{v}</span>
         <span className="hg-cap">/ 100</span>
         <span className="hg-lbl">Life Protection Score™</span>
       </div>
@@ -158,7 +168,7 @@ function Hero({ variant = "editorial", motion, onScore, onReport }) {
           <div className="hero-centered">
             {head}{sub}{ctas}
             <div className="hero-score-strip">
-              <HeroGauge value={73} motion={motion} />
+              <HeroGauge value={45} motion={motion} />
               <p className="hero-score-note">
                 ผู้ใช้ส่วนใหญ่เริ่มต้นที่คะแนน <strong>40–60</strong><br/>
                 <span className="muted">รู้ช่องว่างของคุณใน 3 นาที</span>
@@ -180,10 +190,10 @@ function Hero({ variant = "editorial", motion, onScore, onReport }) {
                   <span className="tag">SNAPSHOT</span>
                 </div>
                 <div className="hero-card-score">
-                  <HeroGauge value={73} motion={motion} />
+                  <HeroGauge value={45} motion={motion} />
                   <div className="hero-card-status">
-                    <span className="hero-card-status-th">คุ้มครองค่อนข้างดี</span>
-                    <span className="hero-card-status-sub">แต่ยังมีบางจุดที่ควรทบทวน</span>
+                    <span className="hero-card-status-th" style={{ color: "var(--c-partial)" }}>คุ้มครองบางส่วน</span>
+                    <span className="hero-card-status-sub">มีพื้นฐานแล้ว แต่ยังมีจุดที่ควรเสริม</span>
                   </div>
                 </div>
                 <div className="hero-card-lists">
@@ -214,7 +224,7 @@ function Hero({ variant = "editorial", motion, onScore, onReport }) {
             </h1>
             {sub}{ctas}
             <div className="hero-statement-foot">
-              <HeroGauge value={73} motion={motion} />
+              <HeroGauge value={45} motion={motion} />
               {trust}
             </div>
           </div>
