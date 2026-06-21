@@ -60,7 +60,17 @@ function Nav({ onScore }) {
   );
 }
 
-// Small animated arc gauge for hero preview
+// Life Protection Score™ risk zones (Critical → Fortress)
+const SCORE_ZONES = [
+  { max: 39,  label: "Critical",   color: "#EF4444" },
+  { max: 59,  label: "At Risk",    color: "#F97316" },
+  { max: 74,  label: "Vulnerable", color: "#FACC15" },
+  { max: 89,  label: "Protected",  color: "#22C55E" },
+  { max: 100, label: "Fortress",   color: "#0EA5E9" },
+];
+const scoreZone = (s) => SCORE_ZONES.find(z => s <= z.max) || SCORE_ZONES[SCORE_ZONES.length - 1];
+
+// Premium 180° Life Protection Score™ gauge
 function HeroGauge({ value = 45, motion }) {
   const [v, setV] = React.useState(motion ? 0 : value);
   React.useEffect(() => {
@@ -78,37 +88,38 @@ function HeroGauge({ value = 45, motion }) {
     const guard = setTimeout(() => { if (!done) setV(value); }, dur + 900);
     return () => { clearTimeout(id); clearTimeout(guard); cancelAnimationFrame(raf); };
   }, [value, motion]);
-  const R = 80, C = 2 * Math.PI * R, span = 0.75; // 270deg
+  const zone = scoreZone(value);
+  const uid = (React.useId ? React.useId() : "hg").replace(/[:]/g, "");
+  const R = 86, CX = 110, CY = 116, semi = Math.PI * R; // 180deg arc length
   const frac = Math.max(0, Math.min(1, v / 100));
-  const tipDeg = 135 + 270 * frac, tipRad = tipDeg * Math.PI / 180;
-  const tx = 100 + R * Math.cos(tipRad), ty = 100 + R * Math.sin(tipRad);
-  // Colour the gauge by the score's band (red → amber → blue → green).
-  const seg = (window.LPS_SEGMENTS || []).find(s => value >= s.min && value <= s.max);
-  const color = (seg && seg.color) || "var(--c-partial)";
+  const ang = Math.PI * (1 - frac);                 // left (π) → right (0)
+  const mx = CX + R * Math.cos(ang), my = CY - R * Math.sin(ang);
+  const track = `M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}`;
   return (
-    <div className="hero-gauge">
-      <svg viewBox="0 0 200 200" width="100%">
+    <div className="hero-gauge hg-semi">
+      <svg viewBox="0 0 220 150" width="100%">
         <defs>
-          <filter id="hgGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="b"/>
+          <linearGradient id={`hgz-${uid}`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor={zone.color} stopOpacity=".55"/>
+            <stop offset="1" stopColor={zone.color}/>
+          </linearGradient>
+          <filter id={`hgG-${uid}`} x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="3.4" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <circle cx="100" cy="100" r={R} fill="none" stroke="var(--surface-3)"
-          strokeWidth="11" strokeLinecap="round"
-          strokeDasharray={`${C*span} ${C}`} transform="rotate(135 100 100)" />
-        <circle cx="100" cy="100" r={R} fill="none" stroke={color}
-          strokeWidth="11" strokeLinecap="round"
-          strokeDasharray={`${C*span*frac} ${C}`} transform="rotate(135 100 100)"
-          style={{ transition: "stroke-dasharray .3s ease, stroke .3s ease" }} />
-        {frac > 0.015 && <circle cx={tx} cy={ty} r="7.5" fill={color}
-          style={{ filter: "url(#hgGlow)", transition: "all .3s ease" }} />}
-        {frac > 0.015 && <circle cx={tx} cy={ty} r="3.2" fill="#fff"
-          style={{ transition: "all .3s ease" }} />}
+        <path d={track} fill="none" stroke="var(--surface-3)" strokeWidth="15" strokeLinecap="round"/>
+        <path d={track} fill="none" stroke={`url(#hgz-${uid})`} strokeWidth="15" strokeLinecap="round"
+          strokeDasharray={`${semi*frac} ${semi}`}
+          style={{ transition: "stroke-dasharray .4s cubic-bezier(.4,0,.2,1), stroke .4s ease" }}/>
+        {frac > 0.01 && <circle cx={mx} cy={my} r="9" fill={zone.color}
+          style={{ filter: `url(#hgG-${uid})`, transition: "all .4s cubic-bezier(.4,0,.2,1)" }}/>}
+        {frac > 0.01 && <circle cx={mx} cy={my} r="3.8" fill="#fff"
+          style={{ transition: "all .4s cubic-bezier(.4,0,.2,1)" }}/>}
       </svg>
-      <div className="hero-gauge-c">
-        <span className="hg-num" style={{ color }}>{v}</span>
-        <span className="hg-cap">/ 100</span>
+      <div className="hg-center">
+        <span className="hg-num" style={{ color: zone.color }}>{v}</span>
+        <span className="hg-status" style={{ color: zone.color }}>{zone.label}</span>
         <span className="hg-lbl">Life Protection Score™</span>
       </div>
     </div>
@@ -192,7 +203,7 @@ function Hero({ variant = "editorial", motion, onScore, onReport }) {
                 <div className="hero-card-score">
                   <HeroGauge value={45} motion={motion} />
                   <div className="hero-card-status">
-                    <span className="hero-card-status-th" style={{ color: "var(--c-partial)" }}>คุ้มครองบางส่วน</span>
+                    <span className="hero-card-status-th" style={{ color: "#F97316" }}>คุ้มครองบางส่วน</span>
                     <span className="hero-card-status-sub">มีพื้นฐานแล้ว แต่ยังมีจุดที่ควรเสริม</span>
                   </div>
                 </div>
