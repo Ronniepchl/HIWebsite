@@ -60,7 +60,7 @@
 }
 
 /* ---------------- HERO ---------------- */
-.hero { position: relative; padding: 150px 0 96px; overflow: hidden; }
+.hero { position: relative; padding: 150px 0 60px; overflow: hidden; }
 .hero-glow {
   position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
   width: 1000px; height: 700px; pointer-events: none;
@@ -94,7 +94,7 @@
 .strike { position: relative; color: var(--text-dim); text-decoration: line-through; text-decoration-color: var(--c-under); text-decoration-thickness: 3px; }
 
 /* hero philosophy band — Category Statement on first screen */
-.hero-philo { position: relative; z-index: 1; max-width: var(--maxw); margin: clamp(48px, 7vw, 84px) auto 0; padding: 28px clamp(20px,4vw,40px) 0; border-top: 1px solid var(--border); text-align: center; }
+.hero-philo { position: relative; z-index: 1; max-width: var(--maxw); margin: clamp(48px, 7vw, 84px) auto 0; padding: 60px clamp(20px,4vw,40px) 0; border-top: 1px solid var(--border); text-align: center; }
 .hero-philo p { font-family: var(--font-display); font-weight: 600; font-size: clamp(18px, 2.4vw, 28px); line-height: 1.45; letter-spacing: -.01em; color: var(--navy); text-wrap: balance; }
 .hero-philo-hl { color: var(--gold); }
 
@@ -461,7 +461,7 @@
 .truth-contrast-head { display: grid; grid-template-columns: 1fr 48px 1fr; gap: 0; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
 .tch { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; }
 .tch-l { color: var(--text-faint); }
-.tch-r { color: var(--accent); }
+.tch-r { color: var(--accent); grid-column: 3; }
 .truth-row { display: grid; grid-template-columns: 1fr 48px 1fr; gap: 0; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
 .tr-hear { font-size: clamp(15px, 1.9vw, 18px); color: var(--text-dim); }
 .tr-arrow { display: grid; place-items: center; color: var(--text-faint); }
