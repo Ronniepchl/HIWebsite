@@ -225,4 +225,35 @@ function Hero({ variant = "editorial", motion, onScore, onReport }) {
   );
 }
 
-Object.assign(window, { Nav, Hero, HeroGauge });
+/* Recognition / credentials strip — sits just below the hero.
+   Built to look intentional with a single logo; TNQA can slot in later. */
+function TrustStrip() {
+  return (
+    <section className="trust-strip reveal" aria-label="Trusted by Professional Standards">
+      <div className="wrap">
+        <div className="trust-kicker mono">Trusted by Professional Standards</div>
+        <div className="trust-row">
+          <figure className="trust-item">
+            <span className="trust-logo-box"><img className="trust-logo trust-mdrt" src="assets/mdrt-seeklogo.com.svg"
+              alt="MDRT — Million Dollar Round Table" loading="lazy" /></span>
+            <figcaption className="trust-cap">ที่ปรึกษาระดับ MDRT</figcaption>
+          </figure>
+          <span className="trust-sep" aria-hidden="true"></span>
+          <figure className="trust-item">
+            <span className="trust-logo-box"><img className="trust-logo trust-azay" src="assets/allianz-ayudhya.png"
+              alt="Allianz Ayudhya" loading="lazy" /></span>
+            <figcaption className="trust-cap">พันธมิตรบริษัทประกัน</figcaption>
+          </figure>
+          <span className="trust-sep" aria-hidden="true"></span>
+          <figure className="trust-item">
+            <span className="trust-logo-box"><img className="trust-logo trust-tnqa" src="assets/TNQA.webp"
+              alt="Thailand National Quality Awards" loading="lazy" /></span>
+            <figcaption className="trust-cap">รางวัลตัวแทนคุณภาพดีเด่นแห่งชาติ</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+Object.assign(window, { Nav, Hero, HeroGauge, TrustStrip });

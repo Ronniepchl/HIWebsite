@@ -57,6 +57,7 @@ function App() {
       <Nav onScore={openScore} />
       <main>
         <Hero variant={t.heroStyle} motion={t.motion} onScore={openScore} onReport={openReport} />
+        <TrustStrip />
         <Confusion />
         <TruthReportPreview onReport={openReport} />
         <ScoreBand onScore={openScore} motion={t.motion} />
