@@ -119,10 +119,11 @@ const LPS_QUESTIONS = [
 ];
 
 const LPS_SEGMENTS = [
-  { min: 0,  max: 40,  key: "under",   th: "ยังคุ้มครองไม่พอ",   en: "Underprotected",      color: "var(--c-under)",   note: "มีช่องว่างความเสี่ยงสำคัญที่ควรปิดก่อน", noteEn: "Significant risk gaps to close first" },
-  { min: 41, max: 70,  key: "partial", th: "คุ้มครองบางส่วน",     en: "Partially Protected", color: "var(--c-partial)", note: "มีพื้นฐานแล้ว แต่ยังมีจุดเปราะบางอยู่", noteEn: "Good foundation, but vulnerable spots remain" },
-  { min: 71, max: 85,  key: "well",    th: "คุ้มครองดี",          en: "Well Protected",      color: "var(--c-well)",    note: "ครอบคลุมความเสี่ยงหลักได้ดี", noteEn: "Core risks are well covered" },
-  { min: 86, max: 100, key: "optimal", th: "คุ้มครองครบ",         en: "Optimized",           color: "var(--c-optimal)", note: "วางแผนได้รัดกุม เหลือเพียงทบทวนเป็นระยะ", noteEn: "Tightly planned — just review periodically" },
+  { min: 0,  max: 39,  key: "critical",   th: "เสี่ยงวิกฤต",       en: "Critical",   color: "#EF4444", note: "มีช่องว่างความเสี่ยงสำคัญที่ต้องรีบปิด", noteEn: "Major protection gaps to close urgently" },
+  { min: 40, max: 59,  key: "atrisk",     th: "มีความเสี่ยง",      en: "At Risk",    color: "#F97316", note: "ความคุ้มครองยังไม่พอรับความเสี่ยงหลัก", noteEn: "Coverage isn't enough for the key risks yet" },
+  { min: 60, max: 74,  key: "vulnerable", th: "ยังเปราะบาง",       en: "Vulnerable", color: "#FACC15", note: "มีพื้นฐานแล้ว แต่ยังมีจุดเปราะบางอยู่", noteEn: "A foundation exists, but vulnerable spots remain" },
+  { min: 75, max: 89,  key: "protected",  th: "คุ้มครองดี",        en: "Protected",  color: "#22C55E", note: "ครอบคลุมความเสี่ยงหลักได้ดี", noteEn: "Core risks are well covered" },
+  { min: 90, max: 100, key: "fortress",   th: "คุ้มครองแข็งแกร่ง",  en: "Fortress",   color: "#0EA5E9", note: "วางแผนได้รัดกุม เหลือเพียงทบทวนเป็นระยะ", noteEn: "Tightly planned — just review periodically" },
 ];
 
 // ---- Section 3: The Truth (what you hear vs what to know) ----
