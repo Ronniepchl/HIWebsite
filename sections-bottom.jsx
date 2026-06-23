@@ -31,38 +31,94 @@ function Stories() {
   );
 }
 
+function ReelCard({ t, i }) {
+  const [play, setPlay] = React.useState(false);
+  const hasMedia = !!(t.youtube || t.video);
+  const cover = t.youtube ? ("https://img.youtube.com/vi/" + t.youtube + "/hqdefault.jpg") : (t.poster || null);
+  const onOpen = (hasMedia && !play) ? () => setPlay(true) : undefined;
+  return (
+    <figure className={"reel-card reveal" + (hasMedia ? "" : " reel-text")} style={{ transitionDelay:(i*80)+"ms" }}>
+      <div className={"reel-media" + (cover && !play ? " has-cover" : "")}
+        style={(cover && !play) ? { backgroundImage: "url(" + cover + ")" } : undefined}
+        onClick={onOpen} role={onOpen ? "button" : undefined} tabIndex={onOpen ? 0 : undefined}
+        onKeyDown={onOpen ? (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setPlay(true);} } : undefined}>
+        {play && t.youtube && (
+          <iframe className="reel-frame" title={t.name}
+            src={"https://www.youtube.com/embed/" + t.youtube + "?autoplay=1&rel=0&modestbranding=1&playsinline=1"}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen/>
+        )}
+        {play && t.video && (
+          <video className="reel-frame" src={t.video} poster={t.poster || undefined} controls autoPlay playsInline/>
+        )}
+        {!play && (
+          <>
+            <span className="reel-tag" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round">
+                <rect x="3" y="3" width="18" height="18" rx="5"/><path d="M3 8.5h18M8.4 3.2l2.5 5.3M14 3.2l2.5 5.3"/>
+                <path d="M10 11.7v4.6l4-2.3z" fill="currentColor" stroke="none"/></svg>
+            </span>
+            <span className="reel-menu" aria-hidden="true"><span/><span/><span/></span>
+            {hasMedia && (
+              <span className="reel-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            )}
+            <div className="reel-overlay">
+              <blockquote className="reel-quote">{t.quote}</blockquote>
+              <figcaption className="reel-author">
+                <span className="reel-avatar" aria-hidden="true">{t.initial}</span>
+                <span className="reel-meta">
+                  <span className="reel-name">{t.name}</span>
+                  <span className="reel-role">{t.role}</span>
+                </span>
+              </figcaption>
+            </div>
+          </>
+        )}
+      </div>
+    </figure>
+  );
+}
+
 function Testimonials() {
+  const trackRef = React.useRef(null);
+  const [edge, setEdge] = React.useState({ start: true, end: true });
+  const sync = React.useCallback(() => {
+    const el = trackRef.current; if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setEdge({ start: el.scrollLeft <= 24, end: max <= 24 || el.scrollLeft >= max - 8 });
+  }, []);
+  React.useEffect(() => {
+    const el = trackRef.current; if (!el) return;
+    sync();
+    el.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    return () => { el.removeEventListener("scroll", sync); window.removeEventListener("resize", sync); };
+  }, [sync]);
+  const nudge = (dir) => {
+    const el = trackRef.current; if (!el) return;
+    const card = el.querySelector(".reel-card");
+    const step = card ? card.getBoundingClientRect().width + 14 : el.clientWidth * 0.85;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
   return (
     <section className="section testimonials" id="testimonials">
       <div className="wrap">
         <SectionHead center kicker="CLIENT VOICES"
           title="เสียงจากลูกค้า"
           lede="ความรู้สึกของผู้ที่ได้เข้าใจความคุ้มครองของตัวเองอย่างแท้จริง ก่อนตัดสินใจ" />
-        <div className="testimonials-grid">
-          {window.TESTIMONIALS.map((t, i) => (
-            <figure key={i} className={"testimonial-card card reveal" + ((t.video || t.youtube) ? " has-video" : "")} style={{ transitionDelay:(i*80)+"ms" }}>
-              {t.youtube ? (
-                <div className="testimonial-video">
-                  <iframe src={"https://www.youtube.com/embed/" + t.youtube} title={t.name}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen></iframe>
-                </div>
-              ) : t.video ? (
-                <div className="testimonial-video">
-                  <video src={t.video} poster={t.poster || undefined} controls muted playsInline preload="metadata" />
-                </div>
-              ) : null}
-              <span className="testimonial-mark" aria-hidden="true">“</span>
-              <blockquote className="testimonial-quote">{t.quote}</blockquote>
-              <figcaption className="testimonial-author">
-                <span className="testimonial-avatar" aria-hidden="true">{t.initial}</span>
-                <span className="testimonial-meta">
-                  <span className="testimonial-name">{t.name}</span>
-                  <span className="testimonial-role">{t.role}</span>
-                </span>
-              </figcaption>
-            </figure>
-          ))}
+        <div className="reels reveal">
+          <div className="reels-stage">
+            <div className="reels-track" ref={trackRef}>
+              {window.TESTIMONIALS.map((t, i) => <ReelCard key={i} t={t} i={i}/>)}
+            </div>
+            <button className={"reels-arrow reels-prev" + (edge.start ? " is-off" : "")} type="button" aria-label="ก่อนหน้า" onClick={()=>nudge(-1)}>
+              <Icon name="arrow" size={22}/>
+            </button>
+            <button className={"reels-arrow reels-next" + (edge.end ? " is-off" : "")} type="button" aria-label="ถัดไป" onClick={()=>nudge(1)}>
+              <Icon name="arrow" size={22}/>
+            </button>
+          </div>
         </div>
       </div>
     </section>
