@@ -42,24 +42,38 @@ function ResultGauge({ score, style = "arc", motion }) {
       </div>
     );
   }
-  const full = style === "ring";
-  const R = 92, C = 2 * Math.PI * R, span = full ? 1 : 0.75;
-  const frac = (n / 100);
-  const rot = full ? -90 : 135;
+  // 180° semicircle — aligned with the homepage Life Protection Score™ gauge
+  const uid = (React.useId ? React.useId() : "rg").replace(/[:]/g, "");
+  const R = 86, CX = 110, CY = 116, semi = Math.PI * R;
+  const frac = Math.max(0, Math.min(1, n / 100));
+  const ang = Math.PI * (1 - frac);
+  const mx = CX + R * Math.cos(ang), my = CY - R * Math.sin(ang);
+  const track = `M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}`;
   return (
-    <div className="rg-arc">
-      <svg viewBox="0 0 220 220" width="100%">
-        <circle cx="110" cy="110" r={R} fill="none" stroke="rgba(255,255,255,.07)"
-          strokeWidth="16" strokeLinecap="round"
-          strokeDasharray={`${C*span} ${C}`} transform={`rotate(${rot} 110 110)`} />
-        <circle cx="110" cy="110" r={R} fill="none" stroke={seg.color}
-          strokeWidth="16" strokeLinecap="round"
-          strokeDasharray={`${C*span*frac} ${C}`} transform={`rotate(${rot} 110 110)`}
-          style={{ filter: `drop-shadow(0 0 12px ${seg.color})` }} />
+    <div className="rg-arc rg-semi">
+      <svg viewBox="0 0 220 150" width="100%">
+        <defs>
+          <linearGradient id={`rgz-${uid}`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor={seg.color} stopOpacity=".55"/>
+            <stop offset="1" stopColor={seg.color}/>
+          </linearGradient>
+          <filter id={`rgG-${uid}`} x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="3.4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <path d={track} fill="none" stroke="var(--surface-3)" strokeWidth="15" strokeLinecap="round"/>
+        <path d={track} fill="none" stroke={`url(#rgz-${uid})`} strokeWidth="15" strokeLinecap="round"
+          strokeDasharray={`${semi*frac} ${semi}`}
+          style={{ transition: "stroke-dasharray .4s cubic-bezier(.4,0,.2,1), stroke .4s ease" }}/>
+        {frac > 0.01 && <circle cx={mx} cy={my} r="9" fill={seg.color}
+          style={{ filter: `url(#rgG-${uid})`, transition: "all .4s cubic-bezier(.4,0,.2,1)" }}/>}
+        {frac > 0.01 && <circle cx={mx} cy={my} r="3.8" fill="#fff"
+          style={{ transition: "all .4s cubic-bezier(.4,0,.2,1)" }}/>}
       </svg>
       <div className="rg-c">
         <span className="rg-num" style={{ color: seg.color }}>{n}</span>
-        <span className="rg-cap">/ 100</span>
+        <span className="rg-cap mono">/ 100</span>
       </div>
     </div>
   );

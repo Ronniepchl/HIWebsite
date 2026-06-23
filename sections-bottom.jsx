@@ -82,15 +82,16 @@ function Team() {
               <div className="team-photo ph">
                 {m.photo
                   ? <img className="team-portrait" src={m.photo} alt={m.name} loading="lazy"/>
-                  : <span className="ph-label">PORTRAIT</span>}
+                  : <span className="team-ph-mono">{(m.en||m.name||"").split(/\s+/).map(w=>w[0]||"").join("").slice(0,2).toUpperCase()}</span>}
+                <div className="team-overlay">
+                  <p className="team-bio">{m.bio}</p>
+                  <div className="team-lic mono"><Icon name="shield" size={13}/> {m.lic}</div>
+                </div>
               </div>
               <div className="team-info">
                 <h3 className="team-name">{m.name}</h3>
                 <div className="team-name-en mono">{m.en}</div>
-                <div className="team-role">{String(m.role).split("\n").map((l,i)=><React.Fragment key={i}>{i>0&&<br/>}{l}</React.Fragment>)}</div>
-                <div className="team-role-en mono">{String(m.roleEn).split("\n").map((l,i)=><React.Fragment key={i}>{i>0&&<br/>}{l}</React.Fragment>)}</div>
-                <p className="team-bio">{m.bio}</p>
-                <div className="team-lic mono"><Icon name="shield" size={13}/> {m.lic}</div>
+                <div className="team-role">{String(m.role).split("\n").map((l,j)=><React.Fragment key={j}>{j>0&&<br/>}{l}</React.Fragment>)}</div>
               </div>
             </article>
           ))}

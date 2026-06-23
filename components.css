@@ -495,22 +495,36 @@
 .team-banner-note { font-family: var(--font-display); font-weight: 600; font-size: clamp(16px,2vw,20px); color: #fff; }
 @media (max-width: 600px) { .team-banner img { max-height: 300px; } }
 
-.team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-.team-card { overflow: hidden; display: flex; flex-direction: column; transition: transform .35s, border-color .35s; }
-.team-card:hover { transform: translateY(-5px); border-color: var(--border-strong); }
-.team-photo { position: relative; aspect-ratio: 4 / 3.4; border-radius: 0; border: 0; border-bottom: 1px solid var(--border); }
-.team-portrait { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
-.team-focus { position: absolute; top: 12px; left: 12px; color: var(--gold); border-color: rgba(160,125,31,.35); background: rgba(255,255,255,.82); backdrop-filter: blur(4px); }
-.team-info { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 2px; }
-.team-name { font-size: 18px; }
-.team-name-en { font-size: 11px; color: var(--text-faint); letter-spacing: .05em; margin-top: 2px; }
-.team-role { font-size: 14px; color: var(--navy-soft); margin-top: 11px; font-weight: 600; }
-.team-role-en { font-size: 10.5px; color: var(--text-dim); letter-spacing: .07em; text-transform: uppercase; margin-top: 2px; }
-.team-bio { font-size: 13.5px; color: var(--text-soft); line-height: 1.55; margin-top: 13px; }
-.team-lic { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text-dim); margin-top: 15px; padding-top: 14px; border-top: 1px solid var(--border); }
-.team-lic svg { color: var(--c-optimal); flex: none; }
+.team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.team-card { overflow: hidden; display: flex; flex-direction: column; padding: 0;
+  transition: transform .4s cubic-bezier(.2,.7,.25,1), box-shadow .4s ease; }
+.team-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-pop); }
+.team-photo { position: relative; aspect-ratio: 1 / 1; overflow: hidden;
+  background: linear-gradient(155deg, var(--surface-2), var(--surface-3)); }
+.team-portrait { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  object-position: center 15%; transition: transform .55s cubic-bezier(.2,.7,.25,1); }
+.team-card:hover .team-portrait { transform: scale(1.06); }
+.team-ph-mono { position: absolute; inset: 0; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 46px; letter-spacing: .02em; color: var(--text-faint); }
+.team-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end;
+  gap: 12px; padding: 22px 20px; color: #fff; opacity: 1;
+  background: linear-gradient(to top, rgba(10,18,33,.94), rgba(10,18,33,.86) 42%, rgba(10,18,33,.45) 74%, rgba(10,18,33,0));
+  transition: opacity .4s ease, transform .45s cubic-bezier(.2,.7,.25,1); }
+.team-overlay .team-bio { margin: 0; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.94); }
+.team-overlay .team-lic { display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px;
+  color: rgba(255,255,255,.78); padding-top: 11px; border-top: 1px solid rgba(255,255,255,.22); }
+.team-overlay .team-lic svg { color: #4ade80; flex: none; }
+.team-info { padding: 18px 18px 20px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.team-name { font-size: 17px; }
+.team-name-en { font-size: 11px; color: var(--text-faint); letter-spacing: .05em; }
+.team-role { font-size: 13.5px; color: var(--navy-soft); margin-top: 8px; font-weight: 600; line-height: 1.45; }
 .team-foot { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 30px; font-size: 13.5px; color: var(--text-dim); }
 .team-foot svg { color: var(--accent); flex: none; }
+/* hover-capable devices: bio hidden, revealed on hover; touch devices keep it visible */
+@media (hover: hover) {
+  .team-overlay { opacity: 0; transform: translateY(10px); }
+  .team-card:hover .team-overlay { opacity: 1; transform: translateY(0); }
+}
 @media (max-width: 980px) { .team-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 520px) { .team-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; } }
 

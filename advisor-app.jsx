@@ -10,16 +10,38 @@ function AFGauge({ score, motion, size = 260 }) {
     return ()=>{ clearTimeout(id); cancelAnimationFrame(raf); };
   }, [score, motion]);
   const tier = window.afTierFor(n);
-  const R=100, C=2*Math.PI*R, span=0.75, frac=n/100;
+  // 180° semicircle — aligned with the homepage Life Protection Score™ gauge
+  const uid = (React.useId ? React.useId() : "afg").replace(/[:]/g, "");
+  const R = 86, CX = 110, CY = 116, semi = Math.PI * R;
+  const frac = Math.max(0, Math.min(1, n / 100));
+  const ang = Math.PI * (1 - frac);
+  const mx = CX + R * Math.cos(ang), my = CY - R * Math.sin(ang);
+  const track = `M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}`;
   return (
-    <div className="te-gauge" style={{ width:size }}>
-      <svg viewBox="0 0 240 240" width="100%">
-        <circle cx="120" cy="120" r={R} fill="none" stroke="rgba(19,41,75,.08)" strokeWidth="16" strokeLinecap="round" strokeDasharray={`${C*span} ${C}`} transform="rotate(135 120 120)"/>
-        <circle cx="120" cy="120" r={R} fill="none" stroke={tier.color} strokeWidth="16" strokeLinecap="round" strokeDasharray={`${C*span*frac} ${C}`} transform="rotate(135 120 120)" style={{ filter:`drop-shadow(0 4px 12px ${tier.color})`, transition:"stroke-dasharray .2s linear" }}/>
+    <div className="af-gauge" style={{ width:size }}>
+      <svg viewBox="0 0 220 150" width="100%">
+        <defs>
+          <linearGradient id={`afz-${uid}`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor={tier.color} stopOpacity=".55"/>
+            <stop offset="1" stopColor={tier.color}/>
+          </linearGradient>
+          <filter id={`afG-${uid}`} x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="3.4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <path d={track} fill="none" stroke="rgba(19,41,75,.08)" strokeWidth="15" strokeLinecap="round"/>
+        <path d={track} fill="none" stroke={`url(#afz-${uid})`} strokeWidth="15" strokeLinecap="round"
+          strokeDasharray={`${semi*frac} ${semi}`}
+          style={{ transition: "stroke-dasharray .4s cubic-bezier(.4,0,.2,1), stroke .4s ease" }}/>
+        {frac > 0.01 && <circle cx={mx} cy={my} r="9" fill={tier.color}
+          style={{ filter: `url(#afG-${uid})`, transition: "all .4s cubic-bezier(.4,0,.2,1)" }}/>}
+        {frac > 0.01 && <circle cx={mx} cy={my} r="3.8" fill="#fff"
+          style={{ transition: "all .4s cubic-bezier(.4,0,.2,1)" }}/>}
       </svg>
-      <div className="te-gauge-c">
-        <span className="te-gauge-num" style={{ color:tier.color }}>{n}</span>
-        <span className="te-gauge-cap mono">/ 100</span>
+      <div className="afg-center">
+        <span className="afg-num" style={{ color:tier.color }}>{n}</span>
+        <span className="afg-cap mono">/ 100</span>
       </div>
     </div>
   );

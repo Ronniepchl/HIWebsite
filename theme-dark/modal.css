@@ -71,9 +71,10 @@
 .lps-result { padding: 30px 28px 26px; text-align: center; animation: stepIn .45s; }
 .lps-result .kicker { margin-bottom: 14px; }
 .rg-arc { position: relative; width: min(260px, 64vw); margin: 4px auto 6px; }
-.rg-c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.rg-num { font-family: var(--font-display); font-size: 70px; font-weight: 600; line-height: 1; letter-spacing: -.03em; }
-.rg-cap { font-family: var(--font-mono); font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+.rg-arc svg { display: block; width: 100%; filter: drop-shadow(0 12px 26px rgba(0,0,0,.35)); }
+.rg-c { position: absolute; left: 0; right: 0; top: 40%; display: flex; flex-direction: column; align-items: center; }
+.rg-num { font-family: var(--font-display); font-size: 58px; font-weight: 700; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.rg-cap { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); margin-top: 6px; letter-spacing: .04em; }
 .rg-linear { padding: 14px 0 4px; }
 .rg-linear-num { display: flex; align-items: baseline; justify-content: center; gap: 8px; margin-bottom: 14px; }
 .rg-linear-num b { font-family: var(--font-display); font-size: 60px; line-height: 1; }
