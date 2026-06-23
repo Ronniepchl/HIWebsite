@@ -191,12 +191,12 @@ function AFResult({ result, motion, onTalk, onRestart }) {
 
 function AFTalk({ open, onClose }) {
   const [done, setDone] = React.useState(false);
-  const [form, setForm] = React.useState({ name:"", contact:"" });
+  const [form, setForm] = React.useState({ name:"", email:"", phone:"" });
   const [err, setErr] = React.useState({});
-  React.useEffect(()=>{ document.body.style.overflow = open?"hidden":""; if(!open) setTimeout(()=>{setDone(false);setForm({name:"",contact:""});setErr({});},300); },[open]);
+  React.useEffect(()=>{ document.body.style.overflow = open?"hidden":""; if(!open) setTimeout(()=>{setDone(false);setForm({name:"",email:"",phone:""});setErr({});},300); },[open]);
   React.useEffect(()=>{ const k=(e)=>{ if(e.key==="Escape"&&open) onClose(); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[open,onClose]);
   if(!open) return null;
-  const submit=(e)=>{ e.preventDefault(); const er={}; if(!form.name.trim())er.name=1; if(!form.contact.trim())er.contact=1; setErr(er); if(!Object.keys(er).length){ setDone(true); const r=window.__afLastResult||null; window.submitToSheet && window.submitToSheet({ source:"advisor-fit", event:"lead", name:form.name.trim(), contact:form.contact.trim(), score:r?r.score:null, answers:r?r.answers:null, summary:"Advisor Fit — let's talk"+(r?(" (score "+r.score+")"):"") }); } };
+  const submit=(e)=>{ e.preventDefault(); const er={}; if(!form.name.trim())er.name=1; if(!form.email.trim()&&!form.phone.trim()){er.email=1;er.phone=1;} setErr(er); if(!Object.keys(er).length){ setDone(true); const r=window.__afLastResult||null; window.submitToSheet && window.submitToSheet({ source:"advisor-fit", event:"lead", name:form.name.trim(), email:form.email.trim(), phone:form.phone.trim(), score:r?r.score:null, answers:r?r.answers:null, summary:"Advisor Fit — let's talk"+(r?(" (score "+r.score+")"):"") }); } };
   return (
     <div className="lps-overlay on" onClick={onClose}>
       <div className="te-book card" onClick={e=>e.stopPropagation()}>
@@ -208,7 +208,8 @@ function AFTalk({ open, onClose }) {
             <p className="te-book-sub">ทิ้งช่องทางติดต่อไว้ แล้วเราจะชวนคุยแบบสบาย ๆ — ไม่ใช่การสัมภาษณ์งาน ไม่มีการกดดัน</p>
             <form className="te-book-form" onSubmit={submit} noValidate>
               <label className={"field"+(err.name?" err":"")}><span>ชื่อ</span><input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="ชื่อของคุณ"/></label>
-              <label className={"field"+(err.contact?" err":"")}><span>อีเมล หรือ เบอร์โทร</span><input value={form.contact} onChange={e=>setForm({...form,contact:e.target.value})} placeholder="you@email.com / 08X-XXX-XXXX"/></label>
+              <label className={"field"+(err.email?" err":"")}><span>อีเมล</span><input type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="you@email.com"/></label>
+              <label className={"field"+(err.phone?" err":"")}><span>เบอร์โทร</span><input type="tel" inputMode="tel" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="08X-XXX-XXXX"/></label>
               <button type="submit" className="btn btn-primary btn-lg te-book-submit">ขอให้ทีมติดต่อกลับ <TIcon name="arrow" size={18} className="arrow"/></button>
               <p className="te-book-fine">เริ่มต้นด้วยการพูดคุย ไม่ใช่การสมัคร</p>
             </form>
@@ -217,7 +218,7 @@ function AFTalk({ open, onClose }) {
           <div className="te-book-done">
             <div className="te-book-done-ic"><TIcon name="check" size={38}/></div>
             <h3 className="te-book-h">ขอบคุณครับ</h3>
-            <p className="te-book-sub">เราจะติดต่อ <b>{form.contact}</b> เพื่อชวนพูดคุยเร็ว ๆ นี้</p>
+            <p className="te-book-sub">เราจะติดต่อ <b>{form.email || form.phone}</b> เพื่อชวนพูดคุยเร็ว ๆ นี้</p>
             <button className="btn btn-ghost" onClick={onClose}>ปิดหน้าต่าง</button>
           </div>
         )}

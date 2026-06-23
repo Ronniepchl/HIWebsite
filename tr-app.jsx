@@ -2,11 +2,11 @@
 
 function TrConsultModal({ open, onClose }) {
   const [done, setDone] = React.useState(false);
-  const [form, setForm] = React.useState({ name: "", contact: "" });
+  const [form, setForm] = React.useState({ name: "", email: "", phone: "" });
   const [err, setErr] = React.useState({});
   React.useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    if (!open) setTimeout(() => { setDone(false); setForm({ name:"", contact:"" }); setErr({}); }, 300);
+    if (!open) setTimeout(() => { setDone(false); setForm({ name:"", email:"", phone:"" }); setErr({}); }, 300);
   }, [open]);
   React.useEffect(() => {
     const k = (e) => { if (e.key === "Escape" && open) onClose(); };
@@ -17,7 +17,7 @@ function TrConsultModal({ open, onClose }) {
     e.preventDefault();
     const er = {};
     if (!form.name.trim()) er.name = true;
-    if (!form.contact.trim()) er.contact = true;
+    if (!form.email.trim() && !form.phone.trim()) { er.email = true; er.phone = true; }
     setErr(er);
     if (!Object.keys(er).length) {
       setDone(true);
@@ -28,7 +28,8 @@ function TrConsultModal({ open, onClose }) {
         source: "truth-report",
         event: "lead",
         name: form.name.trim(),
-        contact: form.contact.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
         score,
         segment: seg ? seg.en : "",
         answers: ans,
@@ -51,10 +52,14 @@ function TrConsultModal({ open, onClose }) {
               <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="ชื่อของคุณ"/>
               {err.name && <em>กรุณากรอกชื่อ</em>}
             </label>
-            <label className={"tr-field" + (err.contact ? " err" : "")}>
-              <span>อีเมล หรือ เบอร์โทร</span>
-              <input value={form.contact} onChange={e => setForm({ ...form, contact: e.target.value })} placeholder="you@email.com หรือ 08X-XXX-XXXX"/>
-              {err.contact && <em>กรุณากรอกช่องทางติดต่อ</em>}
+            <label className={"tr-field" + (err.email ? " err" : "")}>
+              <span>อีเมล</span>
+              <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="you@email.com"/>
+            </label>
+            <label className={"tr-field" + (err.phone ? " err" : "")}>
+              <span>เบอร์โทร</span>
+              <input type="tel" inputMode="tel" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="08X-XXX-XXXX"/>
+              {(err.email || err.phone) && <em>กรุณากรอกอีเมลหรือเบอร์โทรอย่างน้อยหนึ่งช่อง</em>}
             </label>
             <button type="submit" className="tr-btn tr-btn-primary tr-btn-lg">ส่งคำขอ <span className="ar">→</span></button>
             <p className="tr-modal-fine">เราเก็บข้อมูลของคุณเป็นความลับ และจะไม่ส่งต่อให้บุคคลที่สาม</p>

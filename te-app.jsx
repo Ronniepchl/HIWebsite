@@ -32,12 +32,12 @@ function TEIntro({ onStart }) {
 
 function TEBooking({ open, onClose }) {
   const [done, setDone] = React.useState(false);
-  const [form, setForm] = React.useState({ name:"", contact:"", time:"เช้า (9:00–12:00)" });
+  const [form, setForm] = React.useState({ name:"", email:"", phone:"", time:"เช้า (9:00–12:00)" });
   const [err, setErr] = React.useState({});
-  React.useEffect(()=>{ document.body.style.overflow = open?"hidden":""; if(!open) setTimeout(()=>{setDone(false);setForm({name:"",contact:"",time:"เช้า (9:00–12:00)"});setErr({});},300); }, [open]);
+  React.useEffect(()=>{ document.body.style.overflow = open?"hidden":""; if(!open) setTimeout(()=>{setDone(false);setForm({name:"",email:"",phone:"",time:"เช้า (9:00–12:00)"});setErr({});},300); }, [open]);
   React.useEffect(()=>{ const k=(e)=>{ if(e.key==="Escape"&&open) onClose(); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[open,onClose]);
   if (!open) return null;
-  const submit = (e) => { e.preventDefault(); const er={}; if(!form.name.trim())er.name=1; if(!form.contact.trim())er.contact=1; setErr(er); if(!Object.keys(er).length) { setDone(true); const r=window.__teLastResult||null; window.submitToSheet && window.submitToSheet({ source:"trust-engine", event:"lead", name:form.name.trim(), contact:form.contact.trim(), score:r?r.score:null, segment:(r&&window.teSegmentFor)?window.teSegmentFor(r.score).en:"", answers:r?r.answers:null, fields:r?window.teFields(r.answers):{}, summary:"Trust Engine review request"+(r?(" (score "+r.score+")"):"") }); } };
+  const submit = (e) => { e.preventDefault(); const er={}; if(!form.name.trim())er.name=1; if(!form.email.trim()&&!form.phone.trim()){er.email=1;er.phone=1;} setErr(er); if(!Object.keys(er).length) { setDone(true); const r=window.__teLastResult||null; window.submitToSheet && window.submitToSheet({ source:"trust-engine", event:"lead", name:form.name.trim(), email:form.email.trim(), phone:form.phone.trim(), score:r?r.score:null, segment:(r&&window.teSegmentFor)?window.teSegmentFor(r.score).en:"", answers:r?r.answers:null, fields:r?window.teFields(r.answers):{}, summary:"Trust Engine review request"+(r?(" (score "+r.score+")"):"") }); } };
   return (
     <div className="lps-overlay on" onClick={onClose}>
       <div className="te-book card" onClick={e=>e.stopPropagation()}>
@@ -49,7 +49,8 @@ function TEBooking({ open, onClose }) {
             <p className="te-book-sub">นักวิเคราะห์จะอธิบายรายงานของคุณ ทั้งสิ่งที่คุ้มครองและไม่คุ้มครอง — ฟรี ไม่มีการขาย</p>
             <form className="te-book-form" onSubmit={submit} noValidate>
               <label className={"field"+(err.name?" err":"")}><span>ชื่อ</span><input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="ชื่อของคุณ"/></label>
-              <label className={"field"+(err.contact?" err":"")}><span>อีเมล หรือ เบอร์โทร</span><input value={form.contact} onChange={e=>setForm({...form,contact:e.target.value})} placeholder="you@email.com / 08X-XXX-XXXX"/></label>
+              <label className={"field"+(err.email?" err":"")}><span>อีเมล</span><input type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="you@email.com"/></label>
+              <label className={"field"+(err.phone?" err":"")}><span>เบอร์โทร</span><input type="tel" inputMode="tel" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="08X-XXX-XXXX"/></label>
               <label className="field"><span>ช่วงเวลาที่สะดวก</span>
                 <select value={form.time} onChange={e=>setForm({...form,time:e.target.value})}>
                   <option>เช้า (9:00–12:00)</option><option>บ่าย (13:00–17:00)</option><option>เย็น (18:00–20:00)</option>
@@ -63,7 +64,7 @@ function TEBooking({ open, onClose }) {
           <div className="te-book-done">
             <div className="te-book-done-ic"><TIcon name="check" size={38}/></div>
             <h3 className="te-book-h">จองเรียบร้อย</h3>
-            <p className="te-book-sub">เราจะติดต่อ <b>{form.contact}</b> เพื่อยืนยันรีวิวในช่วง <b>{form.time}</b></p>
+            <p className="te-book-sub">เราจะติดต่อ <b>{form.email || form.phone}</b> เพื่อยืนยันรีวิวในช่วง <b>{form.time}</b></p>
             <button className="btn btn-ghost" onClick={onClose}>ปิดหน้าต่าง</button>
           </div>
         )}
